@@ -1,7 +1,194 @@
+- name: 'Set fact: Package manager reinstall command (dnf)'
+  set_fact:
+    package_manager_reinstall_cmd: dnf reinstall -y
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+  - ansible_distribution == "Fedora"
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+
+- name: 'Set fact: Package manager reinstall command (yum)'
+  set_fact:
+    package_manager_reinstall_cmd: yum reinstall -y
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+  - (ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "OracleLinux")
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+
+- name: 'Set fact: Package manager reinstall command (zypper)'
+  set_fact:
+    package_manager_reinstall_cmd: zypper in -f -y
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+  - ansible_distribution == "SLES"
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+
+- name: Read files with incorrect hash
+  command: rpm -Va --nodeps --nosize --nomtime --nordev --nocaps --nolinkto --nouser --nogroup --nomode --noghost --noconfig
+  register: files_with_incorrect_hash
+  changed_when: false
+  failed_when: files_with_incorrect_hash.rc > 1
+  check_mode: false
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+  - (package_manager_reinstall_cmd is defined)
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+
+- name: Create list of packages
+  command: rpm -qf "{{ item }}"
+  with_items: '{{ files_with_incorrect_hash.stdout_lines | map(''regex_findall'', ''^[.]+[5]+.* (\/.*)'', ''\1'') | map(''join'')
+    | select(''match'', ''(\/.*)'') | list | unique }}'
+  register: list_of_packages
+  changed_when: false
+  check_mode: false
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+  - files_with_incorrect_hash.stdout_lines is defined
+  - (files_with_incorrect_hash.stdout_lines | length > 0)
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+
+- name: Reinstall packages of files with incorrect hash
+  command: '{{ package_manager_reinstall_cmd }} ''{{ item }}'''
+  with_items: '{{ list_of_packages.results | map(attribute=''stdout_lines'') | list | unique }}'
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+  - files_with_incorrect_hash.stdout_lines is defined
+  - (package_manager_reinstall_cmd is defined and (files_with_incorrect_hash.stdout_lines | length > 0))
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+
 - name: Read list of files with incorrect permissions
   command: rpm -Va --nodeps --nosignature --nofiledigest --nosize --nomtime --nordev --nocaps --nolinkto --nouser --nogroup
-  args:
-    warn: false
   register: files_with_incorrect_permissions
   failed_when: files_with_incorrect_permissions.rc > 1
   changed_when: false
@@ -35,8 +222,6 @@
 
 - name: Create list of packages
   command: rpm -qf "{{ item }}"
-  args:
-    warn: false
   with_items: '{{ files_with_incorrect_permissions.stdout_lines | map(''regex_findall'', ''^[.]+[M]+.* (\/.*)'', ''\1'') |
     map(''join'') | select(''match'', ''(\/.*)'') | list | unique }}'
   register: list_of_packages
@@ -72,8 +257,6 @@
 
 - name: Correct file permissions with RPM
   command: rpm --setperms '{{ item }}'
-  args:
-    warn: false
   with_items: '{{ list_of_packages.results | map(attribute=''stdout_lines'') | list | unique }}'
   when:
   - high_complexity | bool
@@ -169,6 +352,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-MA-4(6)
   - NIST-800-53-SC-13
+  - PCI-DSS-Req-2.2
   - configure_ssh_crypto_policy
   - disable_strategy
   - low_complexity
@@ -622,8 +806,6 @@
 
 - name: Read signatures in GPG key
   command: gpg --show-keys --with-fingerprint --with-colons "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
-  args:
-    warn: false
   changed_when: false
   register: gpg_fingerprints
   check_mode: false
@@ -766,8 +948,6 @@
     cmd: rpm -qV pam
   register: result_altered_authselect
   ignore_errors: true
-  args:
-    warn: false
   when:
   - configure_strategy | bool
   - enable_authselect | bool
@@ -861,8 +1041,6 @@
 
 - name: Unit Socket Exists - debug-shell.socket
   command: systemctl list-unit-files debug-shell.socket
-  args:
-    warn: false
   register: socket_file_exists
   changed_when: false
   ignore_errors: true
@@ -1205,6 +1383,7 @@
   - NIST-800-171-3.1.6
   - NIST-800-53-CM-6(a)
   - NIST-800-53-IA-2
+  - PCI-DSS-Req-8.6.1
   - low_complexity
   - low_disruption
   - medium_severity
@@ -1248,6 +1427,7 @@
   - NIST-800-171-3.1.5
   - NIST-800-53-AC-6
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-8.6.1
   - low_complexity
   - low_disruption
   - medium_severity
@@ -1355,15 +1535,15 @@
   - PCI-DSS-Req-10.3
   - grub2_audit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
   when:
   - grub2_audit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
 
@@ -1372,8 +1552,8 @@
   when:
   - grub2_audit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -1390,8 +1570,8 @@
   - PCI-DSS-Req-10.3
   - grub2_audit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
 
@@ -1432,8 +1612,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
@@ -1462,8 +1642,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
@@ -1495,8 +1675,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
@@ -1550,8 +1730,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83721-1
   - CJIS-5.4.1.1
@@ -1580,8 +1760,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83721-1
@@ -1609,8 +1789,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -1639,8 +1819,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -1671,8 +1851,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83721-1
@@ -1702,8 +1882,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83721-1
   - CJIS-5.4.1.1
@@ -1733,8 +1913,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83721-1
@@ -1779,7 +1959,7 @@
 
 - name: Set architecture for audit mount tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_media_export | bool
   - low_complexity | bool
@@ -1787,8 +1967,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83735-1
   - CJIS-5.4.1.1
@@ -1805,7 +1987,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for mount for x86 platform
+- name: Perform remediation of Audit rules for mount for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -1901,8 +2083,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83735-1
   - CJIS-5.4.1.1
@@ -1919,7 +2101,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for mount for x86_64 platform
+- name: Perform remediation of Audit rules for mount for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -2015,8 +2197,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83735-1
@@ -2062,7 +2244,7 @@
 
 - name: Set architecture for audit tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -2070,8 +2252,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2088,7 +2272,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Remediate audit rules for network configuration for x86
+- name: Remediate audit rules for network configuration for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -2190,8 +2374,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2208,7 +2392,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Remediate audit rules for network configuration for x86_64
+- name: Remediate audit rules for network configuration for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -2310,8 +2494,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83706-2
@@ -2342,8 +2526,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2373,8 +2557,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -2403,8 +2587,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -2434,8 +2618,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -2467,8 +2651,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -2499,8 +2683,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2531,8 +2715,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83706-2
@@ -2563,8 +2747,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2594,8 +2778,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -2624,8 +2808,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -2655,8 +2839,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -2688,8 +2872,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -2720,8 +2904,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2752,8 +2936,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83706-2
@@ -2784,8 +2968,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2815,8 +2999,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -2845,8 +3029,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -2876,8 +3060,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -2909,8 +3093,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -2941,8 +3125,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -2973,8 +3157,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83706-2
@@ -3005,8 +3189,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -3036,8 +3220,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -3066,8 +3250,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3097,8 +3281,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3130,8 +3314,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83706-2
@@ -3162,8 +3346,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83706-2
   - CJIS-5.4.1.1
@@ -3194,8 +3378,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83706-2
@@ -3251,8 +3435,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83713-8
   - CJIS-5.4.1.1
@@ -3281,8 +3465,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83713-8
@@ -3310,8 +3494,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3340,8 +3524,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3372,8 +3556,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83713-8
@@ -3403,8 +3587,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83713-8
   - CJIS-5.4.1.1
@@ -3434,8 +3618,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83713-8
@@ -3465,8 +3649,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83713-8
   - CJIS-5.4.1.1
@@ -3495,8 +3679,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83713-8
@@ -3524,8 +3708,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3554,8 +3738,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3586,8 +3770,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83713-8
@@ -3617,8 +3801,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83713-8
   - CJIS-5.4.1.1
@@ -3648,8 +3832,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83713-8
@@ -3679,8 +3863,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83713-8
   - CJIS-5.4.1.1
@@ -3709,8 +3893,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83713-8
@@ -3738,8 +3922,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3768,8 +3952,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -3800,8 +3984,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83713-8
@@ -3831,8 +4015,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83713-8
   - CJIS-5.4.1.1
@@ -3862,8 +4046,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83713-8
@@ -3921,8 +4105,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83729-4
   - CJIS-5.4.1.1
@@ -3954,8 +4138,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83729-4
@@ -3986,8 +4170,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4019,8 +4203,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4054,8 +4238,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83729-4
@@ -4088,8 +4272,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83729-4
   - CJIS-5.4.1.1
@@ -4122,8 +4306,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83729-4
@@ -4156,8 +4340,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83729-4
   - CJIS-5.4.1.1
@@ -4189,8 +4373,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83729-4
@@ -4221,8 +4405,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4254,8 +4438,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4289,8 +4473,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83729-4
@@ -4323,8 +4507,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83729-4
   - CJIS-5.4.1.1
@@ -4357,8 +4541,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83729-4
@@ -4414,8 +4598,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83709-6
   - NIST-800-171-3.3.1
@@ -4443,8 +4627,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83709-6
   - NIST-800-171-3.3.1
@@ -4474,8 +4658,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83709-6
   - NIST-800-171-3.3.1
@@ -4530,8 +4714,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
@@ -4562,8 +4746,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83722-9
@@ -4593,8 +4777,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4625,8 +4809,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4659,8 +4843,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83722-9
@@ -4692,8 +4876,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
@@ -4725,8 +4909,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83722-9
@@ -4785,8 +4969,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
@@ -4817,8 +5001,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83723-7
@@ -4848,8 +5032,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4880,8 +5064,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -4914,8 +5098,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83723-7
@@ -4947,8 +5131,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
@@ -4980,8 +5164,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83723-7
@@ -5040,8 +5224,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
@@ -5072,8 +5256,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83712-0
@@ -5103,8 +5287,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -5135,8 +5319,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -5169,8 +5353,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83712-0
@@ -5202,8 +5386,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
@@ -5235,8 +5419,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83712-0
@@ -5295,8 +5479,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
@@ -5327,8 +5511,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83714-6
@@ -5358,8 +5542,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -5390,8 +5574,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -5424,8 +5608,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83714-6
@@ -5457,8 +5641,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
@@ -5490,8 +5674,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83714-6
@@ -5550,8 +5734,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
@@ -5582,8 +5766,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83725-2
@@ -5613,8 +5797,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -5645,8 +5829,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -5679,8 +5863,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83725-2
@@ -5712,8 +5896,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
@@ -5745,8 +5929,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83725-2
@@ -5792,7 +5976,7 @@
 
 - name: Set architecture for audit chmod tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_chmod | bool
   - low_complexity | bool
@@ -5800,8 +5984,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83830-0
   - CJIS-5.4.1.1
@@ -5817,7 +6003,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for chmod for x86 platform
+- name: Perform remediation of Audit rules for chmod for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -5919,8 +6105,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83830-0
   - CJIS-5.4.1.1
@@ -5936,7 +6122,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for chmod for x86_64 platform
+- name: Perform remediation of Audit rules for chmod for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6038,8 +6224,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83830-0
@@ -6083,7 +6269,7 @@
 
 - name: Set architecture for audit chown tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_chown | bool
   - low_complexity | bool
@@ -6091,8 +6277,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83812-8
   - CJIS-5.4.1.1
@@ -6108,7 +6296,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for chown for x86 platform
+- name: Perform remediation of Audit rules for chown for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6212,8 +6400,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83812-8
   - CJIS-5.4.1.1
@@ -6229,7 +6417,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for chown for x86_64 platform
+- name: Perform remediation of Audit rules for chown for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6333,8 +6521,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83812-8
@@ -6378,7 +6566,7 @@
 
 - name: Set architecture for audit fchmod tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_fchmod | bool
   - low_complexity | bool
@@ -6386,8 +6574,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83832-6
   - CJIS-5.4.1.1
@@ -6403,7 +6593,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchmod for x86 platform
+- name: Perform remediation of Audit rules for fchmod for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6505,8 +6695,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83832-6
   - CJIS-5.4.1.1
@@ -6522,7 +6712,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchmod for x86_64 platform
+- name: Perform remediation of Audit rules for fchmod for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6624,8 +6814,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83832-6
@@ -6669,7 +6859,7 @@
 
 - name: Set architecture for audit fchmodat tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_fchmodat | bool
   - low_complexity | bool
@@ -6677,8 +6867,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83822-7
   - CJIS-5.4.1.1
@@ -6694,7 +6886,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchmodat for x86 platform
+- name: Perform remediation of Audit rules for fchmodat for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6796,8 +6988,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83822-7
   - CJIS-5.4.1.1
@@ -6813,7 +7005,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchmodat for x86_64 platform
+- name: Perform remediation of Audit rules for fchmodat for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -6915,8 +7107,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83822-7
@@ -6960,7 +7152,7 @@
 
 - name: Set architecture for audit fchown tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_fchown | bool
   - low_complexity | bool
@@ -6968,8 +7160,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83829-2
   - CJIS-5.4.1.1
@@ -6985,7 +7179,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchown for x86 platform
+- name: Perform remediation of Audit rules for fchown for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -7089,8 +7283,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83829-2
   - CJIS-5.4.1.1
@@ -7106,7 +7300,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchown for x86_64 platform
+- name: Perform remediation of Audit rules for fchown for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -7210,8 +7404,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83829-2
@@ -7255,7 +7449,7 @@
 
 - name: Set architecture for audit fchownat tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_fchownat | bool
   - low_complexity | bool
@@ -7263,8 +7457,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83831-8
   - CJIS-5.4.1.1
@@ -7280,7 +7476,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchownat for x86 platform
+- name: Perform remediation of Audit rules for fchownat for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -7384,8 +7580,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83831-8
   - CJIS-5.4.1.1
@@ -7401,7 +7597,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fchownat for x86_64 platform
+- name: Perform remediation of Audit rules for fchownat for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -7505,8 +7701,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83831-8
@@ -7550,7 +7746,7 @@
 
 - name: Set architecture for audit fremovexattr tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_fremovexattr | bool
   - low_complexity | bool
@@ -7558,8 +7754,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83821-9
   - CJIS-5.4.1.1
@@ -7575,7 +7773,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fremovexattr for x86 platform
+- name: Perform remediation of Audit rules for fremovexattr for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -7782,8 +7980,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83821-9
   - CJIS-5.4.1.1
@@ -7799,7 +7997,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fremovexattr for x86_64 platform
+- name: Perform remediation of Audit rules for fremovexattr for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -8006,8 +8204,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83821-9
@@ -8051,7 +8249,7 @@
 
 - name: Set architecture for audit fsetxattr tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_fsetxattr | bool
   - low_complexity | bool
@@ -8059,8 +8257,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83817-7
   - CJIS-5.4.1.1
@@ -8076,7 +8276,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fsetxattr for x86 platform
+- name: Perform remediation of Audit rules for fsetxattr for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -8283,8 +8483,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83817-7
   - CJIS-5.4.1.1
@@ -8300,7 +8500,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for fsetxattr for x86_64 platform
+- name: Perform remediation of Audit rules for fsetxattr for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -8507,8 +8707,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83817-7
@@ -8552,7 +8752,7 @@
 
 - name: Set architecture for audit lchown tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_lchown | bool
   - low_complexity | bool
@@ -8560,8 +8760,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83833-4
   - CJIS-5.4.1.1
@@ -8577,7 +8779,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for lchown for x86 platform
+- name: Perform remediation of Audit rules for lchown for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -8681,8 +8883,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83833-4
   - CJIS-5.4.1.1
@@ -8698,7 +8900,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for lchown for x86_64 platform
+- name: Perform remediation of Audit rules for lchown for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -8802,8 +9004,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83833-4
@@ -8847,7 +9049,7 @@
 
 - name: Set architecture for audit lremovexattr tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_lremovexattr | bool
   - low_complexity | bool
@@ -8855,8 +9057,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83814-4
   - CJIS-5.4.1.1
@@ -8872,7 +9076,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for lremovexattr for x86 platform
+- name: Perform remediation of Audit rules for lremovexattr for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -9079,8 +9283,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83814-4
   - CJIS-5.4.1.1
@@ -9096,7 +9300,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for lremovexattr for x86_64 platform
+- name: Perform remediation of Audit rules for lremovexattr for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -9303,8 +9507,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83814-4
@@ -9348,7 +9552,7 @@
 
 - name: Set architecture for audit lsetxattr tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_lsetxattr | bool
   - low_complexity | bool
@@ -9356,8 +9560,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83808-6
   - CJIS-5.4.1.1
@@ -9373,7 +9579,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for lsetxattr for x86 platform
+- name: Perform remediation of Audit rules for lsetxattr for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -9580,8 +9786,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83808-6
   - CJIS-5.4.1.1
@@ -9597,7 +9803,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for lsetxattr for x86_64 platform
+- name: Perform remediation of Audit rules for lsetxattr for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -9804,8 +10010,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83808-6
@@ -9849,7 +10055,7 @@
 
 - name: Set architecture for audit removexattr tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_removexattr | bool
   - low_complexity | bool
@@ -9857,8 +10063,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83807-8
   - CJIS-5.4.1.1
@@ -9874,7 +10082,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for removexattr for x86 platform
+- name: Perform remediation of Audit rules for removexattr for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -10081,8 +10289,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83807-8
   - CJIS-5.4.1.1
@@ -10098,7 +10306,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for removexattr for x86_64 platform
+- name: Perform remediation of Audit rules for removexattr for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -10305,8 +10513,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83807-8
@@ -10350,7 +10558,7 @@
 
 - name: Set architecture for audit setxattr tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_dac_modification_setxattr | bool
   - low_complexity | bool
@@ -10358,8 +10566,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83811-0
   - CJIS-5.4.1.1
@@ -10375,7 +10585,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for setxattr for x86 platform
+- name: Perform remediation of Audit rules for setxattr for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -10582,8 +10792,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83811-0
   - CJIS-5.4.1.1
@@ -10599,7 +10809,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for setxattr for x86_64 platform
+- name: Perform remediation of Audit rules for setxattr for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -10806,8 +11016,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83811-0
@@ -10944,8 +11154,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83748-4
   - NIST-800-171-3.1.7
@@ -11082,8 +11292,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83749-2
   - NIST-800-171-3.1.7
@@ -11221,8 +11431,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83750-0
   - NIST-800-171-3.1.7
@@ -11360,8 +11570,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83751-8
   - NIST-800-171-3.1.7
@@ -11402,7 +11612,7 @@
 
 - name: Set architecture for audit rename tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_file_deletion_events_rename | bool
   - low_complexity | bool
@@ -11410,8 +11620,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83754-2
   - NIST-800-171-3.1.7
@@ -11426,7 +11638,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for rename for x86 platform
+- name: Perform remediation of Audit rules for rename for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -11532,8 +11744,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83754-2
   - NIST-800-171-3.1.7
@@ -11548,7 +11760,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for rename for x86_64 platform
+- name: Perform remediation of Audit rules for rename for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -11654,8 +11866,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83754-2
@@ -11697,7 +11909,7 @@
 
 - name: Set architecture for audit renameat tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_file_deletion_events_renameat | bool
   - low_complexity | bool
@@ -11705,8 +11917,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83756-7
   - NIST-800-171-3.1.7
@@ -11721,7 +11935,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for renameat for x86 platform
+- name: Perform remediation of Audit rules for renameat for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -11827,8 +12041,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83756-7
   - NIST-800-171-3.1.7
@@ -11843,7 +12057,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for renameat for x86_64 platform
+- name: Perform remediation of Audit rules for renameat for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -11949,8 +12163,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83756-7
@@ -11992,7 +12206,7 @@
 
 - name: Set architecture for audit rmdir tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_file_deletion_events_rmdir | bool
   - low_complexity | bool
@@ -12000,8 +12214,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83758-3
   - NIST-800-171-3.1.7
@@ -12016,7 +12232,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for rmdir for x86 platform
+- name: Perform remediation of Audit rules for rmdir for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -12122,8 +12338,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83758-3
   - NIST-800-171-3.1.7
@@ -12138,7 +12354,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for rmdir for x86_64 platform
+- name: Perform remediation of Audit rules for rmdir for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -12244,8 +12460,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83758-3
@@ -12287,7 +12503,7 @@
 
 - name: Set architecture for audit unlink tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_file_deletion_events_unlink | bool
   - low_complexity | bool
@@ -12295,8 +12511,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83757-5
   - NIST-800-171-3.1.7
@@ -12311,7 +12529,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for unlink for x86 platform
+- name: Perform remediation of Audit rules for unlink for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -12417,8 +12635,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83757-5
   - NIST-800-171-3.1.7
@@ -12433,7 +12651,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for unlink for x86_64 platform
+- name: Perform remediation of Audit rules for unlink for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -12539,8 +12757,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83757-5
@@ -12582,7 +12800,7 @@
 
 - name: Set architecture for audit unlinkat tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_file_deletion_events_unlinkat | bool
   - low_complexity | bool
@@ -12590,8 +12808,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83755-9
   - NIST-800-171-3.1.7
@@ -12606,7 +12826,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for unlinkat for x86 platform
+- name: Perform remediation of Audit rules for unlinkat for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -12712,8 +12932,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83755-9
   - NIST-800-171-3.1.7
@@ -12728,7 +12948,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for unlinkat for x86_64 platform
+- name: Perform remediation of Audit rules for unlinkat for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -12834,8 +13054,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83755-9
@@ -12878,7 +13098,7 @@
 
 - name: Set architecture for audit creat tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
@@ -12886,8 +13106,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83786-4
   - NIST-800-171-3.1.7
@@ -12903,7 +13125,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for creat EACCES for x86 platform
+- name: Perform remediation of Audit rules for creat EACCES for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13013,8 +13235,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83786-4
   - NIST-800-171-3.1.7
@@ -13030,7 +13252,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for creat EACCES for x86_64 platform
+- name: Perform remediation of Audit rules for creat EACCES for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13140,8 +13362,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83786-4
@@ -13158,7 +13380,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for creat EPERM for x86 platform
+- name: Perform remediation of Audit rules for creat EPERM for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13268,8 +13490,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83786-4
   - NIST-800-171-3.1.7
@@ -13285,7 +13507,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for creat EPERM for x86_64 platform
+- name: Perform remediation of Audit rules for creat EPERM for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13395,8 +13617,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83786-4
@@ -13440,7 +13662,7 @@
 
 - name: Set architecture for audit ftruncate tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
@@ -13448,8 +13670,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83800-3
   - NIST-800-171-3.1.7
@@ -13465,7 +13689,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for ftruncate EACCES for x86 platform
+- name: Perform remediation of Audit rules for ftruncate EACCES for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13575,8 +13799,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83800-3
   - NIST-800-171-3.1.7
@@ -13592,7 +13816,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for ftruncate EACCES for x86_64 platform
+- name: Perform remediation of Audit rules for ftruncate EACCES for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13702,8 +13926,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83800-3
@@ -13720,7 +13944,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for ftruncate EPERM for x86 platform
+- name: Perform remediation of Audit rules for ftruncate EPERM for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13830,8 +14054,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83800-3
   - NIST-800-171-3.1.7
@@ -13847,7 +14071,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for ftruncate EPERM for x86_64 platform
+- name: Perform remediation of Audit rules for ftruncate EPERM for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -13957,8 +14181,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83800-3
@@ -14002,7 +14226,7 @@
 
 - name: Set architecture for audit open tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
@@ -14010,8 +14234,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83801-1
   - NIST-800-171-3.1.7
@@ -14027,7 +14253,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open EACCES for x86 platform
+- name: Perform remediation of Audit rules for open EACCES for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14137,8 +14363,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83801-1
   - NIST-800-171-3.1.7
@@ -14154,7 +14380,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open EACCES for x86_64 platform
+- name: Perform remediation of Audit rules for open EACCES for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14264,8 +14490,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83801-1
@@ -14282,7 +14508,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open EPERM for x86 platform
+- name: Perform remediation of Audit rules for open EPERM for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14392,8 +14618,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83801-1
   - NIST-800-171-3.1.7
@@ -14409,7 +14635,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open EPERM for x86_64 platform
+- name: Perform remediation of Audit rules for open EPERM for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14519,8 +14745,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83801-1
@@ -14564,7 +14790,7 @@
 
 - name: Set architecture for audit open_by_handle_at tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
@@ -14572,8 +14798,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83796-3
   - NIST-800-171-3.1.7
@@ -14589,7 +14817,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open_by_handle_at EACCES for x86 platform
+- name: Perform remediation of Audit rules for open_by_handle_at EACCES for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14699,8 +14927,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83796-3
   - NIST-800-171-3.1.7
@@ -14716,7 +14944,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open_by_handle_at EACCES for x86_64 platform
+- name: Perform remediation of Audit rules for open_by_handle_at EACCES for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14826,8 +15054,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83796-3
@@ -14844,7 +15072,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open_by_handle_at EPERM for x86 platform
+- name: Perform remediation of Audit rules for open_by_handle_at EPERM for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -14954,8 +15182,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83796-3
   - NIST-800-171-3.1.7
@@ -14971,7 +15199,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for open_by_handle_at EPERM for x86_64 platform
+- name: Perform remediation of Audit rules for open_by_handle_at EPERM for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15081,8 +15309,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83796-3
@@ -15126,7 +15354,7 @@
 
 - name: Set architecture for audit openat tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
@@ -15134,8 +15362,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83794-8
   - NIST-800-171-3.1.7
@@ -15151,7 +15381,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for openat EACCES for x86 platform
+- name: Perform remediation of Audit rules for openat EACCES for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15261,8 +15491,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83794-8
   - NIST-800-171-3.1.7
@@ -15278,7 +15508,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for openat EACCES for x86_64 platform
+- name: Perform remediation of Audit rules for openat EACCES for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15388,8 +15618,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83794-8
@@ -15406,7 +15636,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for openat EPERM for x86 platform
+- name: Perform remediation of Audit rules for openat EPERM for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15516,8 +15746,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83794-8
   - NIST-800-171-3.1.7
@@ -15533,7 +15763,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for openat EPERM for x86_64 platform
+- name: Perform remediation of Audit rules for openat EPERM for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15643,8 +15873,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83794-8
@@ -15688,7 +15918,7 @@
 
 - name: Set architecture for audit truncate tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
@@ -15696,8 +15926,10 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83792-2
   - NIST-800-171-3.1.7
@@ -15713,7 +15945,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for truncate EACCES for x86 platform
+- name: Perform remediation of Audit rules for truncate EACCES for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15823,8 +16055,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83792-2
   - NIST-800-171-3.1.7
@@ -15840,7 +16072,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for truncate EACCES for x86_64 platform
+- name: Perform remediation of Audit rules for truncate EACCES for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -15950,8 +16182,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83792-2
@@ -15968,7 +16200,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for truncate EPERM for x86 platform
+- name: Perform remediation of Audit rules for truncate EPERM for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -16078,8 +16310,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83792-2
   - NIST-800-171-3.1.7
@@ -16095,7 +16327,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for truncate EPERM for x86_64 platform
+- name: Perform remediation of Audit rules for truncate EPERM for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -16205,8 +16437,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83792-2
@@ -16250,7 +16482,7 @@
 
 - name: Set architecture for audit delete_module tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_kernel_module_loading_delete | bool
   - configure_strategy | bool
@@ -16258,8 +16490,10 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83802-9
   - NIST-800-171-3.1.7
@@ -16275,7 +16509,7 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Perform remediation of Audit rules for delete_module for x86 platform
+- name: Perform remediation of Audit rules for delete_module for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -16371,8 +16605,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83802-9
   - NIST-800-171-3.1.7
@@ -16388,7 +16622,7 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Perform remediation of Audit rules for delete_module for x86_64 platform
+- name: Perform remediation of Audit rules for delete_module for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -16484,8 +16718,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83802-9
@@ -16529,7 +16763,7 @@
 
 - name: Set architecture for audit init_module tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_kernel_module_loading_init | bool
   - configure_strategy | bool
@@ -16537,8 +16771,10 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-90835-0
   - NIST-800-171-3.1.7
@@ -16554,7 +16790,7 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Perform remediation of Audit rules for init_module for x86 platform
+- name: Perform remediation of Audit rules for init_module for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -16654,8 +16890,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-90835-0
   - NIST-800-171-3.1.7
@@ -16671,7 +16907,7 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Perform remediation of Audit rules for init_module for x86_64 platform
+- name: Perform remediation of Audit rules for init_module for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -16771,8 +17007,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-90835-0
@@ -16827,8 +17063,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83783-1
   - NIST-800-171-3.1.7
@@ -16857,8 +17093,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83783-1
@@ -16886,8 +17122,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -16916,8 +17152,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -16948,8 +17184,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83783-1
@@ -16979,8 +17215,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83783-1
   - NIST-800-171-3.1.7
@@ -17010,8 +17246,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83783-1
@@ -17066,8 +17302,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83785-6
   - NIST-800-171-3.1.7
@@ -17096,8 +17332,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83785-6
@@ -17125,8 +17361,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -17155,8 +17391,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -17187,8 +17423,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83785-6
@@ -17218,8 +17454,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83785-6
   - NIST-800-171-3.1.7
@@ -17249,8 +17485,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83785-6
@@ -17305,8 +17541,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83782-3
   - NIST-800-171-3.1.7
@@ -17335,8 +17571,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83782-3
@@ -17364,8 +17600,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -17394,8 +17630,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -17426,8 +17662,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83782-3
@@ -17457,8 +17693,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83782-3
   - NIST-800-171-3.1.7
@@ -17488,8 +17724,8 @@
   - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83782-3
@@ -17627,8 +17863,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83765-8
   - NIST-800-171-3.1.7
@@ -17765,8 +18001,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83763-3
   - NIST-800-171-3.1.7
@@ -17902,8 +18138,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83761-7
   - NIST-800-171-3.1.7
@@ -18039,8 +18275,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83773-2
   - NIST-800-171-3.1.7
@@ -18177,8 +18413,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83766-6
   - NIST-800-171-3.1.7
@@ -18316,8 +18552,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83767-4
   - NIST-800-171-3.1.7
@@ -18453,8 +18689,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83781-5
   - NIST-800-171-3.1.7
@@ -18592,8 +18828,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83769-0
   - NIST-800-171-3.1.7
@@ -18730,8 +18966,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83770-8
   - NIST-800-171-3.1.7
@@ -18868,8 +19104,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83776-5
   - NIST-800-171-3.1.7
@@ -19004,8 +19240,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83771-6
   - NIST-800-171-3.1.7
@@ -19140,8 +19376,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83780-7
   - NIST-800-171-3.1.7
@@ -19276,8 +19512,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83764-1
   - NIST-800-171-3.1.7
@@ -19412,8 +19648,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83762-5
   - NIST-800-171-3.1.7
@@ -19557,8 +19793,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83768-2
   - NIST-800-171-3.1.7
@@ -19702,8 +19938,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83760-9
   - NIST-800-171-3.1.7
@@ -19746,7 +19982,7 @@
 
 - name: Set architecture for audit tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_time_adjtimex | bool
   - low_complexity | bool
@@ -19754,8 +19990,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83840-9
   - CJIS-5.4.1.1
@@ -19772,7 +20010,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for adjtimex for x86 platform
+- name: Perform remediation of Audit rules for adjtimex for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -19874,8 +20112,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83840-9
   - CJIS-5.4.1.1
@@ -19892,7 +20130,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for adjtimex for x86_64 platform
+- name: Perform remediation of Audit rules for adjtimex for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -19993,8 +20231,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83840-9
@@ -20040,7 +20278,7 @@
 
 - name: Set architecture for audit tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_time_clock_settime | bool
   - low_complexity | bool
@@ -20048,8 +20286,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83837-5
   - CJIS-5.4.1.1
@@ -20066,7 +20306,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for clock_settime for x86 platform
+- name: Perform remediation of Audit rules for clock_settime for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -20162,8 +20402,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83837-5
   - CJIS-5.4.1.1
@@ -20180,7 +20420,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for clock_settime for x86_64 platform
+- name: Perform remediation of Audit rules for clock_settime for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -20276,8 +20516,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83837-5
@@ -20323,7 +20563,7 @@
 
 - name: Set architecture for audit tasks
   set_fact:
-    audit_arch: b{{ ansible_architecture | regex_replace('.*(\d\d$)','\1') }}
+    audit_arch: b64
   when:
   - audit_rules_time_settimeofday | bool
   - low_complexity | bool
@@ -20331,8 +20571,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83836-7
   - CJIS-5.4.1.1
@@ -20349,7 +20591,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for settimeofday for x86 platform
+- name: Perform remediation of Audit rules for settimeofday for 32bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -20451,8 +20693,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83836-7
   - CJIS-5.4.1.1
@@ -20469,7 +20711,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Perform remediation of Audit rules for settimeofday for x86_64 platform
+- name: Perform remediation of Audit rules for settimeofday for 64bit platform
   block:
   - name: Declare list of syscalls
     set_fact:
@@ -20571,8 +20813,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - audit_arch == "b64"
   tags:
   - CCE-83836-7
@@ -20718,8 +20960,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83835-9
   - CJIS-5.4.1.1
@@ -20775,8 +21017,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83839-1
   - CJIS-5.4.1.1
@@ -20806,8 +21048,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83839-1
@@ -20836,8 +21078,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -20867,8 +21109,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and
     find_existing_watch_rules_d.matched == 0
   tags:
@@ -20900,8 +21142,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83839-1
@@ -20932,8 +21174,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83839-1
   - CJIS-5.4.1.1
@@ -20964,8 +21206,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83839-1
@@ -21020,8 +21262,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83695-7
   - CJIS-5.4.1.1
@@ -21072,8 +21314,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - '"audit" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"audit" in ansible_facts.packages'
   tags:
   - CCE-83685-8
   - NIST-800-171-3.3.1
@@ -21121,8 +21363,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - '"grub2-common" in ansible_facts.packages'
+  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83848-2
@@ -21149,8 +21391,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - '"grub2-common" in ansible_facts.packages'
+  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -21202,8 +21444,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - '"grub2-common" in ansible_facts.packages'
+  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83845-8
@@ -21230,8 +21472,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - '"grub2-common" in ansible_facts.packages'
+  - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -21307,8 +21549,6 @@
 
 - name: Unit Socket Exists - autofs.socket
   command: systemctl list-unit-files autofs.socket
-  args:
-    warn: false
   register: socket_file_exists
   changed_when: false
   ignore_errors: true
@@ -21423,6 +21663,7 @@
     paths:
     - /etc/sysctl.d/
     - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
     contains: ^[\s]*kernel.dmesg_restrict.*$
     patterns: '*.conf'
     file_type: any
@@ -21447,7 +21688,7 @@
   - reboot_required
   - sysctl_kernel_dmesg_restrict
 
-- name: Comment out any occurrences of kernel.dmesg_restrict from /etc/sysctl.d/*.conf files
+- name: Comment out any occurrences of kernel.dmesg_restrict from config files
   replace:
     path: '{{ item.path }}'
     regexp: ^[\s]*kernel.dmesg_restrict
@@ -21504,6 +21745,7 @@
     paths:
     - /etc/sysctl.d/
     - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
     contains: ^[\s]*fs.suid_dumpable.*$
     patterns: '*.conf'
     file_type: any
@@ -21527,7 +21769,7 @@
   - reboot_required
   - sysctl_fs_suid_dumpable
 
-- name: Comment out any occurrences of fs.suid_dumpable from /etc/sysctl.d/*.conf files
+- name: Comment out any occurrences of fs.suid_dumpable from config files
   replace:
     path: '{{ item.path }}'
     regexp: ^[\s]*fs.suid_dumpable
@@ -21604,6 +21846,7 @@
     paths:
     - /etc/sysctl.d/
     - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
     contains: ^[\s]*kernel.randomize_va_space.*$
     patterns: '*.conf'
     file_type: any
@@ -21622,6 +21865,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-30
   - NIST-800-53-SC-30(2)
+  - PCI-DSS-Req-2.2.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -21629,7 +21873,7 @@
   - reboot_required
   - sysctl_kernel_randomize_va_space
 
-- name: Comment out any occurrences of kernel.randomize_va_space from /etc/sysctl.d/*.conf files
+- name: Comment out any occurrences of kernel.randomize_va_space from config files
   replace:
     path: '{{ item.path }}'
     regexp: ^[\s]*kernel.randomize_va_space
@@ -21649,6 +21893,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-30
   - NIST-800-53-SC-30(2)
+  - PCI-DSS-Req-2.2.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -21676,6 +21921,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-30
   - NIST-800-53-SC-30(2)
+  - PCI-DSS-Req-2.2.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -21683,12 +21929,35 @@
   - reboot_required
   - sysctl_kernel_randomize_va_space
 
-- name: Find /etc/grub.d/ files
-  find:
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+  tags:
+  - CCE-84078-5
+  - NIST-800-171-3.1.2
+  - NIST-800-171-3.7.2
+  - NIST-800-53-AC-3
+  - NIST-800-53-AC-3(3)(a)
+  - grub2_enable_selinux
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  when:
+  - grub2_enable_selinux | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+
+- name: Ensure SELinux Not Disabled in /etc/default/grub - Find /etc/grub.d/ files
+  ansible.builtin.find:
     paths:
     - /etc/grub.d/
     follow: true
-  register: grub
+  register: result_grub_d
   when:
   - grub2_enable_selinux | bool
   - low_complexity | bool
@@ -21697,6 +21966,7 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"grub2-common" in ansible_facts.packages'
   tags:
   - CCE-84078-5
   - NIST-800-171-3.1.2
@@ -21710,14 +21980,12 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Ensure SELinux Not Disabled in grub files
-  replace:
+- name: Ensure SELinux Not Disabled in /etc/default/grub - Ensure SELinux Not Disabled in /etc/grub.d/ files
+  ansible.builtin.replace:
     dest: '{{ item.path }}'
     regexp: (selinux|enforcing)=0
   with_items:
-  - '{{ grub.files }}'
-  - path: /etc/grub2.cfg
-  - path: /etc/default/grub
+  - '{{ result_grub_d.files }}'
   when:
   - grub2_enable_selinux | bool
   - low_complexity | bool
@@ -21726,6 +21994,113 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"grub2-common" in ansible_facts.packages'
+  tags:
+  - CCE-84078-5
+  - NIST-800-171-3.1.2
+  - NIST-800-171-3.7.2
+  - NIST-800-53-AC-3
+  - NIST-800-53-AC-3(3)(a)
+  - grub2_enable_selinux
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Ensure SELinux Not Disabled in /etc/default/grub - Check if /etc/grub2.cfg exists
+  ansible.builtin.stat:
+    path: /etc/grub2.cfg
+  register: result_grub2_cfg_present
+  when:
+  - grub2_enable_selinux | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"grub2-common" in ansible_facts.packages'
+  tags:
+  - CCE-84078-5
+  - NIST-800-171-3.1.2
+  - NIST-800-171-3.7.2
+  - NIST-800-53-AC-3
+  - NIST-800-53-AC-3(3)(a)
+  - grub2_enable_selinux
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Ensure SELinux Not Disabled in /etc/default/grub - Check if /etc/default/grub exists
+  ansible.builtin.stat:
+    path: /etc/default/grub
+  register: result_default_grub_present
+  when:
+  - grub2_enable_selinux | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"grub2-common" in ansible_facts.packages'
+  tags:
+  - CCE-84078-5
+  - NIST-800-171-3.1.2
+  - NIST-800-171-3.7.2
+  - NIST-800-53-AC-3
+  - NIST-800-53-AC-3(3)(a)
+  - grub2_enable_selinux
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Ensure SELinux Not Disabled in /etc/default/grub - Ensure SELinux Not Disabled in /etc/grub2.cfg
+  ansible.builtin.replace:
+    dest: /etc/grub2.cfg
+    regexp: (selinux|enforcing)=0
+  when:
+  - grub2_enable_selinux | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"grub2-common" in ansible_facts.packages'
+  - result_grub2_cfg_present.stat.exists
+  tags:
+  - CCE-84078-5
+  - NIST-800-171-3.1.2
+  - NIST-800-171-3.7.2
+  - NIST-800-53-AC-3
+  - NIST-800-53-AC-3(3)(a)
+  - grub2_enable_selinux
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Ensure SELinux Not Disabled in /etc/default/grub - Ensure SELinux Not Disabled in /etc/default/grub
+  ansible.builtin.replace:
+    dest: /etc/default/grub
+    regexp: (selinux|enforcing)=0
+  when:
+  - grub2_enable_selinux | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"grub2-common" in ansible_facts.packages'
+  - result_default_grub_present.stat.exists
   tags:
   - CCE-84078-5
   - NIST-800-171-3.1.2
@@ -21813,9 +22188,9 @@
       line: SELINUX={{ var_selinux_state }}
       state: present
   when:
+  - high_severity | bool
   - low_complexity | bool
   - low_disruption | bool
-  - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - selinux_state | bool
@@ -21828,9 +22203,9 @@
   - NIST-800-53-AC-3(3)(a)
   - NIST-800-53-AU-9
   - NIST-800-53-SC-7(21)
+  - high_severity
   - low_complexity
   - low_disruption
-  - medium_severity
   - no_reboot_needed
   - restrict_strategy
   - selinux_state
@@ -21995,8 +22370,6 @@
 
 - name: Unit Socket Exists - kdump.socket
   command: systemctl list-unit-files kdump.socket
-  args:
-    warn: false
   register: socket_file_exists
   changed_when: false
   ignore_errors: true
@@ -22192,8 +22565,6 @@
 
 - name: Unit Socket Exists - xinetd.socket
   command: systemctl list-unit-files xinetd.socket
-  args:
-    warn: false
   register: socket_file_exists
   changed_when: false
   ignore_errors: true
@@ -22305,8 +22676,6 @@
 
 - name: Unit Socket Exists - rlogin.socket
   command: systemctl list-unit-files rlogin.socket
-  args:
-    warn: false
   register: socket_file_exists
   changed_when: false
   ignore_errors: true
@@ -22454,6 +22823,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
+  - PCI-DSS-Req-2.2.4
   - disable_strategy
   - high_severity
   - low_complexity
@@ -22523,8 +22893,6 @@
 
 - name: Unit Socket Exists - telnet.socket
   command: systemctl list-unit-files telnet.socket
-  args:
-    warn: false
   register: socket_file_exists
   changed_when: false
   ignore_errors: true
@@ -22799,6 +23167,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
+  - PCI-DSS-Req-2.2.6
   - high_severity
   - low_complexity
   - low_disruption
@@ -22981,6 +23350,7 @@
   - NIST-800-53-CM-7(b)
   - NIST-800-53-IA-2
   - NIST-800-53-IA-2(5)
+  - PCI-DSS-Req-2.2.6
   - low_complexity
   - low_disruption
   - medium_severity
@@ -23041,6 +23411,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
+  - PCI-DSS-Req-2.2.6
   - low_complexity
   - low_disruption
   - medium_severity
@@ -23159,6 +23530,7 @@
   - NIST-800-53-AC-8(a)
   - NIST-800-53-AC-8(c)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-2.2.6
   - low_complexity
   - low_disruption
   - medium_severity
