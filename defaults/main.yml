@@ -118,6 +118,7 @@ reboot_required: true
 require_singleuser_auth: true
 restrict_serial_port_logins: true
 restrict_strategy: true
+rpm_verify_hashes: true
 rpm_verify_permissions: true
 rsyslog_remote_loghost: true
 sebool_selinuxuser_execheap: true
