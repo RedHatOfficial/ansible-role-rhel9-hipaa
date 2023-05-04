@@ -21623,7 +21623,7 @@
   lineinfile:
     create: true
     dest: /etc/modprobe.d/usb-storage.conf
-    regexp: usb-storage
+    regexp: install\s+usb-storage
     line: install usb-storage /bin/true
   when:
   - disable_strategy | bool
@@ -22237,6 +22237,7 @@
   - no_reboot_needed | bool
   - sebool_selinuxuser_execheap | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - not ( lookup("env", "container") == "bwrap-osbuild" )
   tags:
   - CCE-84084-3
   - enable_strategy
@@ -22259,6 +22260,7 @@
   - no_reboot_needed | bool
   - sebool_selinuxuser_execheap | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - not ( lookup("env", "container") == "bwrap-osbuild" )
   tags:
   - CCE-84084-3
   - enable_strategy
@@ -22280,6 +22282,7 @@
   - no_reboot_needed | bool
   - sebool_selinuxuser_execmod | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - not ( lookup("env", "container") == "bwrap-osbuild" )
   tags:
   - CCE-84086-8
   - enable_strategy
@@ -22302,6 +22305,7 @@
   - no_reboot_needed | bool
   - sebool_selinuxuser_execmod | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - not ( lookup("env", "container") == "bwrap-osbuild" )
   tags:
   - CCE-84086-8
   - enable_strategy
@@ -22323,6 +22327,7 @@
   - no_reboot_needed | bool
   - sebool_selinuxuser_execstack | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - not ( lookup("env", "container") == "bwrap-osbuild" )
   tags:
   - CCE-84089-2
   - enable_strategy
@@ -22345,6 +22350,7 @@
   - no_reboot_needed | bool
   - sebool_selinuxuser_execstack | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - not ( lookup("env", "container") == "bwrap-osbuild" )
   tags:
   - CCE-84089-2
   - enable_strategy
