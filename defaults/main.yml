@@ -82,8 +82,11 @@ auditd_data_retention_flush: true
 configure_crypto_policy: true
 configure_ssh_crypto_policy: true
 configure_strategy: true
+dconf_db_up_to_date: true
 dconf_gnome_remote_access_credential_prompt: true
 dconf_gnome_remote_access_encryption: true
+disable_ctrlaltdel_burstaction: true
+disable_ctrlaltdel_reboot: true
 disable_host_auth: true
 disable_strategy: true
 enable_authselect: true
