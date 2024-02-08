@@ -2,6 +2,7 @@
   set_fact:
     package_manager_reinstall_cmd: dnf reinstall -y
   when:
+  - DISA_STIG_RHEL_09_214030 | bool
   - high_complexity | bool
   - high_severity | bool
   - medium_disruption | bool
@@ -12,6 +13,7 @@
   tags:
   - CCE-90841-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214030
   - NIST-800-171-3.3.8
   - NIST-800-171-3.4.1
   - NIST-800-53-AU-9(3)
@@ -33,6 +35,7 @@
   set_fact:
     package_manager_reinstall_cmd: yum reinstall -y
   when:
+  - DISA_STIG_RHEL_09_214030 | bool
   - high_complexity | bool
   - high_severity | bool
   - medium_disruption | bool
@@ -43,6 +46,7 @@
   tags:
   - CCE-90841-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214030
   - NIST-800-171-3.3.8
   - NIST-800-171-3.4.1
   - NIST-800-53-AU-9(3)
@@ -64,6 +68,7 @@
   set_fact:
     package_manager_reinstall_cmd: zypper in -f -y
   when:
+  - DISA_STIG_RHEL_09_214030 | bool
   - high_complexity | bool
   - high_severity | bool
   - medium_disruption | bool
@@ -74,6 +79,7 @@
   tags:
   - CCE-90841-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214030
   - NIST-800-171-3.3.8
   - NIST-800-171-3.4.1
   - NIST-800-53-AU-9(3)
@@ -98,6 +104,7 @@
   failed_when: files_with_incorrect_hash.rc > 1
   check_mode: false
   when:
+  - DISA_STIG_RHEL_09_214030 | bool
   - high_complexity | bool
   - high_severity | bool
   - medium_disruption | bool
@@ -108,6 +115,7 @@
   tags:
   - CCE-90841-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214030
   - NIST-800-171-3.3.8
   - NIST-800-171-3.4.1
   - NIST-800-53-AU-9(3)
@@ -133,6 +141,7 @@
   changed_when: false
   check_mode: false
   when:
+  - DISA_STIG_RHEL_09_214030 | bool
   - high_complexity | bool
   - high_severity | bool
   - medium_disruption | bool
@@ -144,6 +153,7 @@
   tags:
   - CCE-90841-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214030
   - NIST-800-171-3.3.8
   - NIST-800-171-3.4.1
   - NIST-800-53-AU-9(3)
@@ -165,6 +175,7 @@
   command: '{{ package_manager_reinstall_cmd }} ''{{ item }}'''
   with_items: '{{ list_of_packages.results | map(attribute=''stdout_lines'') | list | unique }}'
   when:
+  - DISA_STIG_RHEL_09_214030 | bool
   - high_complexity | bool
   - high_severity | bool
   - medium_disruption | bool
@@ -176,6 +187,7 @@
   tags:
   - CCE-90841-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214030
   - NIST-800-171-3.3.8
   - NIST-800-171-3.4.1
   - NIST-800-53-AU-9(3)
@@ -303,6 +315,9 @@
     create: true
   tags:
   - CCE-83450-7
+  - DISA-STIG-RHEL-09-671010
+  - DISA-STIG-RHEL-09-672030
+  - DISA-STIG-RHEL-09-672045
   - NIST-800-53-AC-17(2)
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -310,6 +325,7 @@
   - NIST-800-53-SC-12(2)
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SC-13
+  - PCI-DSSv4-2.2.7
   - configure_crypto_policy
   - high_severity
   - low_complexity
@@ -317,6 +333,9 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_671010 | bool
+  - DISA_STIG_RHEL_09_672030 | bool
+  - DISA_STIG_RHEL_09_672045 | bool
   - configure_crypto_policy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -328,6 +347,9 @@
   command: /usr/bin/update-crypto-policies --set {{ var_system_crypto_policy }}
   tags:
   - CCE-83450-7
+  - DISA-STIG-RHEL-09-671010
+  - DISA-STIG-RHEL-09-672030
+  - DISA-STIG-RHEL-09-672045
   - NIST-800-53-AC-17(2)
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -335,6 +357,7 @@
   - NIST-800-53-SC-12(2)
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SC-13
+  - PCI-DSSv4-2.2.7
   - configure_crypto_policy
   - high_severity
   - low_complexity
@@ -342,6 +365,9 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_671010 | bool
+  - DISA_STIG_RHEL_09_672030 | bool
+  - DISA_STIG_RHEL_09_672045 | bool
   - configure_crypto_policy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -356,13 +382,14 @@
     regexp: ^(?i)\s*CRYPTO_POLICY.*$
   tags:
   - CCE-83445-7
+  - DISA-STIG-RHEL-09-255055
   - NIST-800-53-AC-17(2)
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
   - NIST-800-53-MA-4(6)
   - NIST-800-53-SC-13
   - PCI-DSS-Req-2.2
-  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.7
   - configure_ssh_crypto_policy
   - disable_strategy
   - low_complexity
@@ -370,6 +397,7 @@
   - medium_severity
   - reboot_required
   when:
+  - DISA_STIG_RHEL_09_255055 | bool
   - configure_ssh_crypto_policy | bool
   - disable_strategy | bool
   - low_complexity | bool
@@ -382,8 +410,9 @@
     manager: auto
   tags:
   - CCE-87295-2
+  - DISA-STIG-RHEL-09-271090
   - PCI-DSS-Req-6.2
-  - PCI-DSSv4-6.3.3
+  - PCI-DSSv4-8.2.8
   - dconf_db_up_to_date
   - high_severity
   - low_complexity
@@ -391,6 +420,7 @@
   - no_reboot_needed
   - unknown_strategy
   when:
+  - DISA_STIG_RHEL_09_271090 | bool
   - dconf_db_up_to_date | bool
   - high_severity | bool
   - low_complexity | bool
@@ -402,6 +432,7 @@
   ansible.builtin.command:
     cmd: dconf update
   when:
+  - DISA_STIG_RHEL_09_271090 | bool
   - dconf_db_up_to_date | bool
   - high_severity | bool
   - low_complexity | bool
@@ -412,8 +443,9 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-87295-2
+  - DISA-STIG-RHEL-09-271090
   - PCI-DSS-Req-6.2
-  - PCI-DSSv4-6.3.3
+  - PCI-DSSv4-8.2.8
   - dconf_db_up_to_date
   - high_severity
   - low_complexity
@@ -625,6 +657,7 @@
   tags:
   - CCE-83457-2
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214015
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-11(a)
   - NIST-800-53-CM-11(b)
@@ -644,6 +677,7 @@
   - medium_disruption
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_214015 | bool
   - configure_strategy | bool
   - ensure_gpgcheck_globally_activated | bool
   - high_severity | bool
@@ -660,6 +694,7 @@
     no_extra_spaces: true
     create: false
   when:
+  - DISA_STIG_RHEL_09_214015 | bool
   - configure_strategy | bool
   - ensure_gpgcheck_globally_activated | bool
   - high_severity | bool
@@ -670,6 +705,7 @@
   tags:
   - CCE-83457-2
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214015
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-11(a)
   - NIST-800-53-CM-11(b)
@@ -694,6 +730,7 @@
     manager: auto
   tags:
   - CCE-83463-0
+  - DISA-STIG-RHEL-09-214020
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-11(a)
   - NIST-800-53-CM-11(b)
@@ -708,6 +745,7 @@
   - no_reboot_needed
   - unknown_strategy
   when:
+  - DISA_STIG_RHEL_09_214020 | bool
   - ensure_gpgcheck_local_packages | bool
   - high_severity | bool
   - low_complexity | bool
@@ -735,6 +773,7 @@
       no_extra_spaces: true
       create: true
   when:
+  - DISA_STIG_RHEL_09_214020 | bool
   - ensure_gpgcheck_local_packages | bool
   - high_severity | bool
   - low_complexity | bool
@@ -744,6 +783,7 @@
   - '"yum" in ansible_facts.packages'
   tags:
   - CCE-83463-0
+  - DISA-STIG-RHEL-09-214020
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-11(a)
   - NIST-800-53-CM-11(b)
@@ -770,6 +810,7 @@
   tags:
   - CCE-83464-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214025
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-11(a)
   - NIST-800-53-CM-11(b)
@@ -789,6 +830,7 @@
   - medium_disruption
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_214025 | bool
   - enable_strategy | bool
   - ensure_gpgcheck_never_disabled | bool
   - high_severity | bool
@@ -807,6 +849,7 @@
   tags:
   - CCE-83464-8
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214025
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-11(a)
   - NIST-800-53-CM-11(b)
@@ -826,6 +869,7 @@
   - medium_disruption
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_214025 | bool
   - enable_strategy | bool
   - ensure_gpgcheck_never_disabled | bool
   - high_severity | bool
@@ -841,6 +885,7 @@
   tags:
   - CCE-84180-9
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214010
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-5(3)
   - NIST-800-53-CM-6(a)
@@ -848,6 +893,7 @@
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SI-7
   - PCI-DSS-Req-6.2
+  - PCI-DSSv4-6.3.3
   - ensure_redhat_gpgkey_installed
   - high_severity
   - medium_complexity
@@ -855,6 +901,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_214010 | bool
   - ensure_redhat_gpgkey_installed | bool
   - high_severity | bool
   - medium_complexity | bool
@@ -870,6 +917,7 @@
   tags:
   - CCE-84180-9
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214010
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-5(3)
   - NIST-800-53-CM-6(a)
@@ -877,6 +925,7 @@
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SI-7
   - PCI-DSS-Req-6.2
+  - PCI-DSSv4-6.3.3
   - ensure_redhat_gpgkey_installed
   - high_severity
   - medium_complexity
@@ -884,6 +933,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_214010 | bool
   - ensure_redhat_gpgkey_installed | bool
   - high_severity | bool
   - medium_complexity | bool
@@ -899,6 +949,7 @@
   tags:
   - CCE-84180-9
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214010
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-5(3)
   - NIST-800-53-CM-6(a)
@@ -906,6 +957,7 @@
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SI-7
   - PCI-DSS-Req-6.2
+  - PCI-DSSv4-6.3.3
   - ensure_redhat_gpgkey_installed
   - high_severity
   - medium_complexity
@@ -913,6 +965,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_214010 | bool
   - ensure_redhat_gpgkey_installed | bool
   - high_severity | bool
   - medium_complexity | bool
@@ -926,6 +979,7 @@
   tags:
   - CCE-84180-9
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214010
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-5(3)
   - NIST-800-53-CM-6(a)
@@ -933,6 +987,7 @@
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SI-7
   - PCI-DSS-Req-6.2
+  - PCI-DSSv4-6.3.3
   - ensure_redhat_gpgkey_installed
   - high_severity
   - medium_complexity
@@ -940,6 +995,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_214010 | bool
   - ensure_redhat_gpgkey_installed | bool
   - high_severity | bool
   - medium_complexity | bool
@@ -952,6 +1008,7 @@
     state: present
     key: /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
   when:
+  - DISA_STIG_RHEL_09_214010 | bool
   - ensure_redhat_gpgkey_installed | bool
   - high_severity | bool
   - medium_complexity | bool
@@ -965,6 +1022,7 @@
   tags:
   - CCE-84180-9
   - CJIS-5.10.4.1
+  - DISA-STIG-RHEL-09-214010
   - NIST-800-171-3.4.8
   - NIST-800-53-CM-5(3)
   - NIST-800-53-CM-6(a)
@@ -972,6 +1030,7 @@
   - NIST-800-53-SC-12(3)
   - NIST-800-53-SI-7
   - PCI-DSS-Req-6.2
+  - PCI-DSSv4-6.3.3
   - ensure_redhat_gpgkey_installed
   - high_severity
   - medium_complexity
@@ -1083,6 +1142,7 @@
     - name: Intentionally ignored previous 'Disable service debug-shell' failure, service was already disabled
       meta: noop
   when:
+  - DISA_STIG_RHEL_09_211055 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1092,6 +1152,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90724-6
+  - DISA-STIG-RHEL-09-211055
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6
   - disable_strategy
@@ -1108,6 +1169,7 @@
   failed_when: socket_file_exists.rc not in [0, 1]
   check_mode: false
   when:
+  - DISA_STIG_RHEL_09_211055 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1117,6 +1179,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90724-6
+  - DISA-STIG-RHEL-09-211055
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6
   - disable_strategy
@@ -1133,6 +1196,7 @@
     state: stopped
     masked: 'yes'
   when:
+  - DISA_STIG_RHEL_09_211055 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1143,6 +1207,7 @@
   - socket_file_exists.stdout_lines is search("debug-shell.socket",multiline=True)
   tags:
   - CCE-90724-6
+  - DISA-STIG-RHEL-09-211055
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6
   - disable_strategy
@@ -1157,6 +1222,7 @@
     manager: auto
   tags:
   - CCE-90308-8
+  - DISA-STIG-RHEL-09-211045
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -1168,6 +1234,7 @@
   - low_disruption
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_211045 | bool
   - disable_ctrlaltdel_burstaction | bool
   - disable_strategy | bool
   - high_severity | bool
@@ -1183,6 +1250,7 @@
     line: CtrlAltDelBurstAction=none
     create: true
   when:
+  - DISA_STIG_RHEL_09_211045 | bool
   - disable_ctrlaltdel_burstaction | bool
   - disable_strategy | bool
   - high_severity | bool
@@ -1193,6 +1261,7 @@
   - '"systemd" in ansible_facts.packages'
   tags:
   - CCE-90308-8
+  - DISA-STIG-RHEL-09-211045
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -1211,6 +1280,7 @@
     masked: true
     state: stopped
   when:
+  - DISA_STIG_RHEL_09_211050 | bool
   - disable_ctrlaltdel_reboot | bool
   - disable_strategy | bool
   - high_severity | bool
@@ -1220,6 +1290,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86667-3
+  - DISA-STIG-RHEL-09-211050
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -1235,6 +1306,7 @@
     manager: auto
   tags:
   - CCE-87114-5
+  - DISA-STIG-RHEL-09-212015
   - NIST-800-171-3.1.2
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6(a)
@@ -1246,6 +1318,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_212015 | bool
   - grub2_disable_interactive_boot | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1260,6 +1333,7 @@
     line: GRUB_DISABLE_RECOVERY=true
     state: present
   when:
+  - DISA_STIG_RHEL_09_212015 | bool
   - grub2_disable_interactive_boot | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1270,6 +1344,7 @@
   - '"grub2-common" in ansible_facts.packages'
   tags:
   - CCE-87114-5
+  - DISA-STIG-RHEL-09-212015
   - NIST-800-171-3.1.2
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6(a)
@@ -1287,6 +1362,7 @@
     regexp: systemd.confirm_spawn(=(1|yes|true|on)|\b)
     replace: systemd.confirm_spawn=no
   when:
+  - DISA_STIG_RHEL_09_212015 | bool
   - grub2_disable_interactive_boot | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1297,6 +1373,7 @@
   - '"grub2-common" in ansible_facts.packages'
   tags:
   - CCE-87114-5
+  - DISA-STIG-RHEL-09-212015
   - NIST-800-171-3.1.2
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6(a)
@@ -1311,6 +1388,7 @@
 - name: Verify that Interactive Boot is Disabled (runtime)
   command: /sbin/grubby --update-kernel=ALL --remove-args="systemd.confirm_spawn"
   when:
+  - DISA_STIG_RHEL_09_212015 | bool
   - grub2_disable_interactive_boot | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1321,6 +1399,7 @@
   - '"grub2-common" in ansible_facts.packages'
   tags:
   - CCE-87114-5
+  - DISA-STIG-RHEL-09-212015
   - NIST-800-171-3.1.2
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6(a)
@@ -1335,6 +1414,7 @@
 - name: Regen grub.cfg handle updated GRUB_DISABLE_RECOVERY and confirm_spawn
   command: grub2-mkconfig -o  /boot/grub2/grub.cfg
   when:
+  - DISA_STIG_RHEL_09_212015 | bool
   - grub2_disable_interactive_boot | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1345,6 +1425,7 @@
   - '"grub2-common" in ansible_facts.packages'
   tags:
   - CCE-87114-5
+  - DISA-STIG-RHEL-09-212015
   - NIST-800-171-3.1.2
   - NIST-800-171-3.4.5
   - NIST-800-53-CM-6(a)
@@ -1363,6 +1444,7 @@
     regexp: ^#?ExecStart=
     line: ExecStart=-/usr/lib/systemd/systemd-sulogin-shell rescue
   when:
+  - DISA_STIG_RHEL_09_611200 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -1372,6 +1454,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83594-2
+  - DISA-STIG-RHEL-09-611200
   - NIST-800-171-3.1.1
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-3
@@ -1389,6 +1472,7 @@
     path: /usr/bin/authselect
   register: result_authselect_present
   when:
+  - DISA_STIG_RHEL_09_611025 | bool
   - configure_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -1399,14 +1483,14 @@
   tags:
   - CCE-83611-4
   - CJIS-5.5.2
+  - DISA-STIG-RHEL-09-611025
   - NIST-800-171-3.1.1
   - NIST-800-171-3.1.5
   - NIST-800-53-CM-6(a)
   - NIST-800-53-IA-5(1)(a)
   - NIST-800-53-IA-5(c)
   - PCI-DSS-Req-8.2.3
-  - PCI-DSSv4-8.3.6
-  - PCI-DSSv4-8.3.9
+  - PCI-DSSv4-8.3.1
   - configure_strategy
   - high_severity
   - low_complexity
@@ -1455,6 +1539,7 @@
     - result_authselect_enable_feature_cmd is not skipped
     - result_authselect_enable_feature_cmd is success
   when:
+  - DISA_STIG_RHEL_09_611025 | bool
   - configure_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -1466,14 +1551,14 @@
   tags:
   - CCE-83611-4
   - CJIS-5.5.2
+  - DISA-STIG-RHEL-09-611025
   - NIST-800-171-3.1.1
   - NIST-800-171-3.1.5
   - NIST-800-53-CM-6(a)
   - NIST-800-53-IA-5(1)(a)
   - NIST-800-53-IA-5(c)
   - PCI-DSS-Req-8.2.3
-  - PCI-DSSv4-8.3.6
-  - PCI-DSSv4-8.3.9
+  - PCI-DSSv4-8.3.1
   - configure_strategy
   - high_severity
   - low_complexity
@@ -1489,6 +1574,7 @@
   - /etc/pam.d/system-auth
   - /etc/pam.d/password-auth
   when:
+  - DISA_STIG_RHEL_09_611025 | bool
   - configure_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -1500,14 +1586,14 @@
   tags:
   - CCE-83611-4
   - CJIS-5.5.2
+  - DISA-STIG-RHEL-09-611025
   - NIST-800-171-3.1.1
   - NIST-800-171-3.1.5
   - NIST-800-53-CM-6(a)
   - NIST-800-53-IA-5(1)(a)
   - NIST-800-53-IA-5(c)
   - PCI-DSS-Req-8.2.3
-  - PCI-DSSv4-8.3.6
-  - PCI-DSSv4-8.3.9
+  - PCI-DSSv4-8.3.1
   - configure_strategy
   - high_severity
   - low_complexity
@@ -1598,6 +1684,7 @@
   tags:
   - CCE-90829-3
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-653015
   - NIST-800-171-3.3.1
   - NIST-800-171-3.3.2
   - NIST-800-171-3.3.6
@@ -1619,6 +1706,7 @@
   - no_reboot_needed
   - service_auditd_enabled
   when:
+  - DISA_STIG_RHEL_09_653015 | bool
   - enable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1640,6 +1728,7 @@
     when:
     - '"audit" in ansible_facts.packages'
   when:
+  - DISA_STIG_RHEL_09_653015 | bool
   - enable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1651,6 +1740,7 @@
   tags:
   - CCE-90829-3
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-653015
   - NIST-800-171-3.3.1
   - NIST-800-171-3.3.2
   - NIST-800-171-3.3.6
@@ -1678,6 +1768,7 @@
   tags:
   - CCE-83651-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-212055
   - NIST-800-171-3.3.1
   - NIST-800-53-AC-17(1)
   - NIST-800-53-AU-10
@@ -1685,7 +1776,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-IR-5(1)
   - PCI-DSS-Req-10.3
-  - PCI-DSSv4-10.7
+  - PCI-DSSv4-10.7.3
   - grub2_audit_argument
   - low_disruption
   - low_severity
@@ -1693,6 +1784,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_212055 | bool
   - grub2_audit_argument | bool
   - low_disruption | bool
   - low_severity | bool
@@ -1703,6 +1795,7 @@
 - name: Update grub defaults and the bootloader menu
   command: /sbin/grubby --update-kernel=ALL --args="audit=1"
   when:
+  - DISA_STIG_RHEL_09_212055 | bool
   - grub2_audit_argument | bool
   - low_disruption | bool
   - low_severity | bool
@@ -1714,6 +1807,7 @@
   tags:
   - CCE-83651-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-212055
   - NIST-800-171-3.3.1
   - NIST-800-53-AC-17(1)
   - NIST-800-53-AU-10
@@ -1721,7 +1815,7 @@
   - NIST-800-53-CM-6(a)
   - NIST-800-53-IR-5(1)
   - PCI-DSS-Req-10.3
-  - PCI-DSSv4-10.7
+  - PCI-DSSv4-10.7.3
   - grub2_audit_argument
   - low_disruption
   - low_severity
@@ -1735,6 +1829,7 @@
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654275
   - NIST-800-171-3.3.1
   - NIST-800-171-3.4.3
   - NIST-800-53-AC-6(9)
@@ -1748,6 +1843,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654275 | bool
   - audit_rules_immutable | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1761,6 +1857,7 @@
     patterns: '*.rules'
   register: find_rules_d
   when:
+  - DISA_STIG_RHEL_09_654275 | bool
   - audit_rules_immutable | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1772,6 +1869,7 @@
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654275
   - NIST-800-171-3.3.1
   - NIST-800-171-3.4.3
   - NIST-800-53-AC-6(9)
@@ -1792,6 +1890,7 @@
     state: absent
   loop: '{{ find_rules_d.files | map(attribute=''path'') | list + [''/etc/audit/audit.rules''] }}'
   when:
+  - DISA_STIG_RHEL_09_654275 | bool
   - audit_rules_immutable | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1803,6 +1902,7 @@
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654275
   - NIST-800-171-3.3.1
   - NIST-800-171-3.4.3
   - NIST-800-53-AC-6(9)
@@ -1826,6 +1926,7 @@
   - /etc/audit/audit.rules
   - /etc/audit/rules.d/immutable.rules
   when:
+  - DISA_STIG_RHEL_09_654275 | bool
   - audit_rules_immutable | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -1837,6 +1938,7 @@
   tags:
   - CCE-83716-1
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654275
   - NIST-800-171-3.3.1
   - NIST-800-171-3.4.3
   - NIST-800-53-AC-6(9)
@@ -4303,7 +4405,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4345,7 +4446,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4382,7 +4482,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4417,7 +4516,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4453,7 +4551,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4488,7 +4585,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4523,7 +4619,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4559,7 +4654,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4594,7 +4688,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4631,7 +4724,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4666,7 +4758,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4702,7 +4793,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4737,7 +4827,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4772,7 +4861,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4808,7 +4896,6 @@
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - PCI-DSSv4-10.2.1.5
-  - PCI-DSSv4-10.2.2
   - audit_rules_sysadmin_actions
   - low_complexity
   - low_disruption
@@ -4821,6 +4908,7 @@
     manager: auto
   tags:
   - CCE-83709-6
+  - DISA-STIG-RHEL-09-654265
   - NIST-800-171-3.3.1
   - NIST-800-171-3.3.4
   - NIST-800-53-AU-5(b)
@@ -4833,6 +4921,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654265 | bool
   - audit_rules_system_shutdown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -4846,6 +4935,7 @@
     patterns: '*.rules'
   register: find_rules_d
   when:
+  - DISA_STIG_RHEL_09_654265 | bool
   - audit_rules_system_shutdown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -4856,6 +4946,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83709-6
+  - DISA-STIG-RHEL-09-654265
   - NIST-800-171-3.3.1
   - NIST-800-171-3.3.4
   - NIST-800-53-AU-5(b)
@@ -4875,6 +4966,7 @@
     state: absent
   loop: '{{ find_rules_d.files | map(attribute=''path'') | list + [''/etc/audit/audit.rules''] }}'
   when:
+  - DISA_STIG_RHEL_09_654265 | bool
   - audit_rules_system_shutdown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -4885,6 +4977,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83709-6
+  - DISA-STIG-RHEL-09-654265
   - NIST-800-171-3.3.1
   - NIST-800-171-3.3.4
   - NIST-800-53-AU-5(b)
@@ -4906,6 +4999,7 @@
   - /etc/audit/audit.rules
   - /etc/audit/rules.d/immutable.rules
   when:
+  - DISA_STIG_RHEL_09_654265 | bool
   - audit_rules_system_shutdown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -4916,6 +5010,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83709-6
+  - DISA-STIG-RHEL-09-654265
   - NIST-800-171-3.3.1
   - NIST-800-171-3.3.4
   - NIST-800-53-AU-5(b)
@@ -4934,6 +5029,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -4949,6 +5045,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -4963,6 +5060,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -4974,6 +5072,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -4996,6 +5095,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5008,6 +5108,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5028,6 +5129,7 @@
     all_files:
     - /etc/audit/rules.d/audit_rules_usergroup_modification.rules
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5041,6 +5143,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5061,6 +5164,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5074,6 +5178,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5096,6 +5201,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5108,6 +5214,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5130,6 +5237,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5141,6 +5249,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5164,6 +5273,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5176,6 +5286,7 @@
   tags:
   - CCE-83722-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654225
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5197,6 +5308,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5212,6 +5324,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5226,6 +5339,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5237,6 +5351,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5259,6 +5374,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5271,6 +5387,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5291,6 +5408,7 @@
     all_files:
     - /etc/audit/rules.d/audit_rules_usergroup_modification.rules
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5304,6 +5422,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5324,6 +5443,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5337,6 +5457,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5359,6 +5480,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5371,6 +5493,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5393,6 +5516,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5404,6 +5528,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5427,6 +5552,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5439,6 +5565,7 @@
   tags:
   - CCE-83723-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654230
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5460,6 +5587,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5475,6 +5603,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5489,6 +5618,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5500,6 +5630,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5522,6 +5653,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5534,6 +5666,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5554,6 +5687,7 @@
     all_files:
     - /etc/audit/rules.d/audit_rules_usergroup_modification.rules
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5567,6 +5701,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5587,6 +5722,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5600,6 +5736,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5622,6 +5759,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5634,6 +5772,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5656,6 +5795,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5667,6 +5807,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5690,6 +5831,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5702,6 +5844,7 @@
   tags:
   - CCE-83712-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654235
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5723,6 +5866,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5738,6 +5882,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5752,6 +5897,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5763,6 +5909,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5785,6 +5932,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5797,6 +5945,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5817,6 +5966,7 @@
     all_files:
     - /etc/audit/rules.d/audit_rules_usergroup_modification.rules
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5830,6 +5980,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5850,6 +6001,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5863,6 +6015,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5885,6 +6038,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5897,6 +6051,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5919,6 +6074,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5930,6 +6086,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5953,6 +6110,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -5965,6 +6123,7 @@
   tags:
   - CCE-83714-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654240
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -5986,6 +6145,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6001,6 +6161,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6015,6 +6176,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6026,6 +6188,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6048,6 +6211,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6060,6 +6224,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6080,6 +6245,7 @@
     all_files:
     - /etc/audit/rules.d/audit_rules_usergroup_modification.rules
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6093,6 +6259,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6113,6 +6280,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6126,6 +6294,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6148,6 +6317,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6160,6 +6330,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6182,6 +6353,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6193,6 +6365,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6216,6 +6389,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6228,6 +6402,7 @@
   tags:
   - CCE-83725-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654245
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -6249,6 +6424,7 @@
   tags:
   - CCE-83830-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6262,6 +6438,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_chmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6273,6 +6450,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_chmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6287,6 +6465,7 @@
   tags:
   - CCE-83830-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6396,6 +6575,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_chmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6408,6 +6588,7 @@
   tags:
   - CCE-83830-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6517,6 +6698,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_chmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6530,6 +6712,7 @@
   tags:
   - CCE-83830-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6549,6 +6732,7 @@
   tags:
   - CCE-83812-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6562,6 +6746,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_chown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6573,6 +6758,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_chown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6587,6 +6773,7 @@
   tags:
   - CCE-83812-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6698,6 +6885,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_chown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6710,6 +6898,7 @@
   tags:
   - CCE-83812-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6821,6 +7010,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_chown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6834,6 +7024,7 @@
   tags:
   - CCE-83812-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6853,6 +7044,7 @@
   tags:
   - CCE-83832-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6866,6 +7058,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6877,6 +7070,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -6890,6 +7084,7 @@
   tags:
   - CCE-83832-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -6999,6 +7194,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7010,6 +7206,7 @@
   tags:
   - CCE-83832-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7119,6 +7316,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmod | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7131,6 +7329,7 @@
   tags:
   - CCE-83832-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7150,6 +7349,7 @@
   tags:
   - CCE-83822-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7163,6 +7363,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmodat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7174,6 +7375,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmodat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7187,6 +7389,7 @@
   tags:
   - CCE-83822-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7296,6 +7499,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmodat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7307,6 +7511,7 @@
   tags:
   - CCE-83822-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7416,6 +7621,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654015 | bool
   - audit_rules_dac_modification_fchmodat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7428,6 +7634,7 @@
   tags:
   - CCE-83822-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654015
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7447,6 +7654,7 @@
   tags:
   - CCE-83829-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7460,6 +7668,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7471,6 +7680,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7484,6 +7694,7 @@
   tags:
   - CCE-83829-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7595,6 +7806,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7606,6 +7818,7 @@
   tags:
   - CCE-83829-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7717,6 +7930,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7729,6 +7943,7 @@
   tags:
   - CCE-83829-2
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7748,6 +7963,7 @@
   tags:
   - CCE-83831-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7761,6 +7977,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchownat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7772,6 +7989,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchownat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7785,6 +8003,7 @@
   tags:
   - CCE-83831-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7896,6 +8115,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchownat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -7907,6 +8127,7 @@
   tags:
   - CCE-83831-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8018,6 +8239,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_fchownat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8030,6 +8252,7 @@
   tags:
   - CCE-83831-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8049,6 +8272,7 @@
   tags:
   - CCE-83821-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8062,6 +8286,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8073,6 +8298,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8086,6 +8312,7 @@
   tags:
   - CCE-83821-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8300,6 +8527,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8311,6 +8539,7 @@
   tags:
   - CCE-83821-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8525,6 +8754,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8537,6 +8767,7 @@
   tags:
   - CCE-83821-9
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8556,6 +8787,7 @@
   tags:
   - CCE-83817-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8569,6 +8801,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8580,6 +8813,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8593,6 +8827,7 @@
   tags:
   - CCE-83817-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8807,6 +9042,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -8818,6 +9054,7 @@
   tags:
   - CCE-83817-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9032,6 +9269,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_fsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9044,6 +9282,7 @@
   tags:
   - CCE-83817-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9063,6 +9302,7 @@
   tags:
   - CCE-83833-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9076,6 +9316,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_lchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9087,6 +9328,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_lchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9101,6 +9343,7 @@
   tags:
   - CCE-83833-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9212,6 +9455,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_lchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9224,6 +9468,7 @@
   tags:
   - CCE-83833-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9335,6 +9580,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654020 | bool
   - audit_rules_dac_modification_lchown | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9348,6 +9594,7 @@
   tags:
   - CCE-83833-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654020
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9367,6 +9614,7 @@
   tags:
   - CCE-83814-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9380,6 +9628,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9391,6 +9640,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9404,6 +9654,7 @@
   tags:
   - CCE-83814-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9618,6 +9869,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9629,6 +9881,7 @@
   tags:
   - CCE-83814-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9843,6 +10096,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lremovexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9855,6 +10109,7 @@
   tags:
   - CCE-83814-4
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9874,6 +10129,7 @@
   tags:
   - CCE-83808-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9887,6 +10143,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9898,6 +10155,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -9911,6 +10169,7 @@
   tags:
   - CCE-83808-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10125,6 +10384,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10136,6 +10396,7 @@
   tags:
   - CCE-83808-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10350,6 +10611,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_lsetxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10362,6 +10624,7 @@
   tags:
   - CCE-83808-6
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10381,6 +10644,7 @@
   tags:
   - CCE-83807-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10394,6 +10658,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_removexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10405,6 +10670,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_removexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10418,6 +10684,7 @@
   tags:
   - CCE-83807-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10632,6 +10899,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_removexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10643,6 +10911,7 @@
   tags:
   - CCE-83807-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10857,6 +11126,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_removexattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10869,6 +11139,7 @@
   tags:
   - CCE-83807-8
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10888,6 +11159,7 @@
   tags:
   - CCE-83811-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10901,6 +11173,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_setxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10912,6 +11185,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_setxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -10925,6 +11199,7 @@
   tags:
   - CCE-83811-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11139,6 +11414,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_setxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11150,6 +11426,7 @@
   tags:
   - CCE-83811-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11364,6 +11641,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654025 | bool
   - audit_rules_dac_modification_setxattr | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11376,6 +11654,7 @@
   tags:
   - CCE-83811-0
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-654025
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11394,6 +11673,7 @@
     manager: auto
   tags:
   - CCE-83748-4
+  - DISA-STIG-RHEL-09-654045
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -11406,6 +11686,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654045 | bool
   - audit_rules_execution_chcon | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11503,6 +11784,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654045 | bool
   - audit_rules_execution_chcon | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11513,6 +11795,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83748-4
+  - DISA-STIG-RHEL-09-654045
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -11668,6 +11951,7 @@
     manager: auto
   tags:
   - CCE-83750-0
+  - DISA-STIG-RHEL-09-654050
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -11681,6 +11965,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654050 | bool
   - audit_rules_execution_semanage | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11780,6 +12065,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654050 | bool
   - audit_rules_execution_semanage | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11790,6 +12076,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83750-0
+  - DISA-STIG-RHEL-09-654050
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -11808,6 +12095,7 @@
     manager: auto
   tags:
   - CCE-83751-8
+  - DISA-STIG-RHEL-09-654060
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -11820,6 +12108,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654060 | bool
   - audit_rules_execution_setsebool | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11919,6 +12208,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654060 | bool
   - audit_rules_execution_setsebool | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11929,6 +12219,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83751-8
+  - DISA-STIG-RHEL-09-654060
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -11946,6 +12237,7 @@
     manager: auto
   tags:
   - CCE-83754-2
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11959,6 +12251,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rename | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11970,6 +12263,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rename | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -11983,6 +12277,7 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83754-2
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12096,6 +12391,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rename | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12107,6 +12403,7 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83754-2
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12220,6 +12517,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rename | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12232,6 +12530,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-83754-2
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12250,6 +12549,7 @@
     manager: auto
   tags:
   - CCE-83756-7
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12263,6 +12563,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_renameat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12274,6 +12575,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_renameat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12286,6 +12588,7 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83756-7
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12399,6 +12702,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_renameat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12409,6 +12713,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83756-7
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12522,6 +12827,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_renameat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12533,6 +12839,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-83756-7
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12551,6 +12858,7 @@
     manager: auto
   tags:
   - CCE-83758-3
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12564,6 +12872,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rmdir | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12575,6 +12884,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rmdir | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12588,6 +12898,7 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83758-3
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12701,6 +13012,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rmdir | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12712,6 +13024,7 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83758-3
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12825,6 +13138,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_rmdir | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12837,6 +13151,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-83758-3
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12855,6 +13170,7 @@
     manager: auto
   tags:
   - CCE-83757-5
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12868,6 +13184,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlink | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12879,6 +13196,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlink | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -12892,6 +13210,7 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83757-5
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13005,6 +13324,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlink | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13016,6 +13336,7 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83757-5
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13129,6 +13450,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlink | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13141,6 +13463,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-83757-5
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13159,6 +13482,7 @@
     manager: auto
   tags:
   - CCE-83755-9
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13172,6 +13496,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlinkat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13183,6 +13508,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlinkat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13195,6 +13521,7 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83755-9
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13308,6 +13635,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlinkat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13318,6 +13646,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83755-9
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13431,6 +13760,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654065 | bool
   - audit_rules_file_deletion_events_unlinkat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13442,6 +13772,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-83755-9
+  - DISA-STIG-RHEL-09-654065
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13460,14 +13791,13 @@
     manager: auto
   tags:
   - CCE-83786-4
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_creat
   - low_complexity
   - low_disruption
@@ -13475,6 +13805,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13486,6 +13817,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13499,14 +13831,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83786-4
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_creat
   - low_complexity
   - low_disruption
@@ -13618,6 +13949,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13629,14 +13961,13 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83786-4
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_creat
   - low_complexity
   - low_disruption
@@ -13748,6 +14079,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13760,14 +14092,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83786-4
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_creat
   - low_complexity
   - low_disruption
@@ -13879,6 +14210,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -13890,14 +14222,13 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83786-4
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_creat
   - low_complexity
   - low_disruption
@@ -14009,6 +14340,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_creat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14021,14 +14353,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83786-4
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_creat
   - low_complexity
   - low_disruption
@@ -14041,14 +14372,13 @@
     manager: auto
   tags:
   - CCE-83800-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_ftruncate
   - low_complexity
   - low_disruption
@@ -14056,6 +14386,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14067,6 +14398,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14079,14 +14411,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83800-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_ftruncate
   - low_complexity
   - low_disruption
@@ -14198,6 +14529,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14208,14 +14540,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83800-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_ftruncate
   - low_complexity
   - low_disruption
@@ -14327,6 +14658,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14338,14 +14670,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83800-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_ftruncate
   - low_complexity
   - low_disruption
@@ -14457,6 +14788,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14467,14 +14799,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83800-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_ftruncate
   - low_complexity
   - low_disruption
@@ -14586,6 +14917,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_ftruncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14597,14 +14929,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83800-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_ftruncate
   - low_complexity
   - low_disruption
@@ -14617,14 +14948,13 @@
     manager: auto
   tags:
   - CCE-83801-1
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open
   - low_complexity
   - low_disruption
@@ -14632,6 +14962,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14643,6 +14974,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14656,14 +14988,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83801-1
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open
   - low_complexity
   - low_disruption
@@ -14775,6 +15106,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14786,14 +15118,13 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83801-1
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open
   - low_complexity
   - low_disruption
@@ -14905,6 +15236,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -14917,14 +15249,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83801-1
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open
   - low_complexity
   - low_disruption
@@ -15036,6 +15367,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15047,14 +15379,13 @@
   - not ( ansible_architecture == "aarch64" )
   tags:
   - CCE-83801-1
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open
   - low_complexity
   - low_disruption
@@ -15166,6 +15497,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15178,14 +15510,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83801-1
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open
   - low_complexity
   - low_disruption
@@ -15198,14 +15529,13 @@
     manager: auto
   tags:
   - CCE-83796-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open_by_handle_at
   - low_complexity
   - low_disruption
@@ -15213,6 +15543,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15224,6 +15555,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15236,14 +15568,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83796-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open_by_handle_at
   - low_complexity
   - low_disruption
@@ -15355,6 +15686,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15365,14 +15697,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83796-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open_by_handle_at
   - low_complexity
   - low_disruption
@@ -15484,6 +15815,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15495,14 +15827,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83796-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open_by_handle_at
   - low_complexity
   - low_disruption
@@ -15614,6 +15945,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15624,14 +15956,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83796-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open_by_handle_at
   - low_complexity
   - low_disruption
@@ -15743,6 +16074,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_open_by_handle_at | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15754,14 +16086,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83796-3
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_open_by_handle_at
   - low_complexity
   - low_disruption
@@ -15774,14 +16105,13 @@
     manager: auto
   tags:
   - CCE-83794-8
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_openat
   - low_complexity
   - low_disruption
@@ -15789,6 +16119,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15800,6 +16131,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15812,14 +16144,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83794-8
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_openat
   - low_complexity
   - low_disruption
@@ -15931,6 +16262,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -15941,14 +16273,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83794-8
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_openat
   - low_complexity
   - low_disruption
@@ -16060,6 +16391,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16071,14 +16403,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83794-8
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_openat
   - low_complexity
   - low_disruption
@@ -16190,6 +16521,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16200,14 +16532,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83794-8
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_openat
   - low_complexity
   - low_disruption
@@ -16319,6 +16650,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_openat | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16330,14 +16662,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83794-8
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_openat
   - low_complexity
   - low_disruption
@@ -16350,14 +16681,13 @@
     manager: auto
   tags:
   - CCE-83792-2
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_truncate
   - low_complexity
   - low_disruption
@@ -16365,6 +16695,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16376,6 +16707,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16388,14 +16720,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83792-2
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_truncate
   - low_complexity
   - low_disruption
@@ -16507,6 +16838,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16517,14 +16849,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83792-2
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_truncate
   - low_complexity
   - low_disruption
@@ -16636,6 +16967,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16647,14 +16979,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83792-2
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_truncate
   - low_complexity
   - low_disruption
@@ -16766,6 +17097,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16776,14 +17108,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83792-2
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_truncate
   - low_complexity
   - low_disruption
@@ -16895,6 +17226,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654070 | bool
   - audit_rules_unsuccessful_file_modification_truncate | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -16906,14 +17238,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83792-2
+  - DISA-STIG-RHEL-09-654070
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.1
   - PCI-DSS-Req-10.2.4
-  - PCI-DSSv4-10.2.1.1
-  - PCI-DSSv4-10.2.1.4
   - audit_rules_unsuccessful_file_modification_truncate
   - low_complexity
   - low_disruption
@@ -16926,13 +17257,13 @@
     manager: auto
   tags:
   - CCE-83802-9
+  - DISA-STIG-RHEL-09-654075
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_delete
   - configure_strategy
   - low_complexity
@@ -16940,6 +17271,7 @@
   - medium_severity
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_654075 | bool
   - audit_rules_kernel_module_loading_delete | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -16951,6 +17283,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654075 | bool
   - audit_rules_kernel_module_loading_delete | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -16963,13 +17296,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-83802-9
+  - DISA-STIG-RHEL-09-654075
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_delete
   - configure_strategy
   - low_complexity
@@ -17067,6 +17400,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654075 | bool
   - audit_rules_kernel_module_loading_delete | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -17077,13 +17411,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83802-9
+  - DISA-STIG-RHEL-09-654075
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_delete
   - configure_strategy
   - low_complexity
@@ -17181,6 +17515,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654075 | bool
   - audit_rules_kernel_module_loading_delete | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -17192,13 +17527,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-83802-9
+  - DISA-STIG-RHEL-09-654075
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_delete
   - configure_strategy
   - low_complexity
@@ -17211,13 +17546,13 @@
     manager: auto
   tags:
   - CCE-90835-0
+  - DISA-STIG-RHEL-09-654080
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_init
   - configure_strategy
   - low_complexity
@@ -17225,6 +17560,7 @@
   - medium_severity
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_654080 | bool
   - audit_rules_kernel_module_loading_init | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -17236,6 +17572,7 @@
   set_fact:
     audit_arch: b64
   when:
+  - DISA_STIG_RHEL_09_654080 | bool
   - audit_rules_kernel_module_loading_init | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -17248,13 +17585,13 @@
     == "s390x" or ansible_architecture == "x86_64"
   tags:
   - CCE-90835-0
+  - DISA-STIG-RHEL-09-654080
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_init
   - configure_strategy
   - low_complexity
@@ -17356,6 +17693,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654080 | bool
   - audit_rules_kernel_module_loading_init | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -17366,13 +17704,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90835-0
+  - DISA-STIG-RHEL-09-654080
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_init
   - configure_strategy
   - low_complexity
@@ -17474,6 +17812,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654080 | bool
   - audit_rules_kernel_module_loading_init | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -17485,13 +17824,13 @@
   - audit_arch == "b64"
   tags:
   - CCE-90835-0
+  - DISA-STIG-RHEL-09-654080
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-10.2.7
-  - PCI-DSSv4-10.2.1.7
   - audit_rules_kernel_module_loading_init
   - configure_strategy
   - low_complexity
@@ -17504,6 +17843,7 @@
     manager: auto
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17518,6 +17858,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17532,6 +17873,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17542,6 +17884,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17563,6 +17906,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17574,6 +17918,7 @@
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17593,6 +17938,7 @@
     all_files:
     - /etc/audit/rules.d/logins.rules
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17605,6 +17951,7 @@
     find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17624,6 +17971,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17636,6 +17984,7 @@
     find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17657,6 +18006,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17668,6 +18018,7 @@
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17689,6 +18040,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17699,6 +18051,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17721,6 +18074,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17732,6 +18086,7 @@
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83783-1
+  - DISA-STIG-RHEL-09-654250
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17751,6 +18106,7 @@
     manager: auto
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17765,6 +18121,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17779,6 +18136,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17789,6 +18147,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17810,6 +18169,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17821,6 +18181,7 @@
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17840,6 +18201,7 @@
     all_files:
     - /etc/audit/rules.d/logins.rules
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17852,6 +18214,7 @@
     find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17871,6 +18234,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17883,6 +18247,7 @@
     find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17904,6 +18269,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17915,6 +18281,7 @@
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17936,6 +18303,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17946,6 +18314,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17968,6 +18337,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -17979,6 +18349,7 @@
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83785-6
+  - DISA-STIG-RHEL-09-654255
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -17998,6 +18369,7 @@
     manager: auto
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18012,6 +18384,7 @@
   - reboot_required
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18026,6 +18399,7 @@
     patterns: '*.rules'
   register: find_existing_watch_rules_d
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18036,6 +18410,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18057,6 +18432,7 @@
     patterns: '*.rules'
   register: find_watch_key
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18068,6 +18444,7 @@
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18087,6 +18464,7 @@
     all_files:
     - /etc/audit/rules.d/logins.rules
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18099,6 +18477,7 @@
     find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18118,6 +18497,7 @@
     all_files:
     - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18130,6 +18510,7 @@
     find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18151,6 +18532,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18162,6 +18544,7 @@
   - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18183,6 +18566,7 @@
     patterns: audit.rules
   register: find_existing_watch_audit_rules
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18193,6 +18577,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18215,6 +18600,7 @@
     create: true
     mode: '0640'
   when:
+  - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18226,6 +18612,7 @@
   - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
   tags:
   - CCE-83782-3
+  - DISA-STIG-RHEL-09-654260
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18245,6 +18632,7 @@
     manager: auto
   tags:
   - CCE-83765-8
+  - DISA-STIG-RHEL-09-654085
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18258,6 +18646,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654085 | bool
   - audit_rules_privileged_commands_chage | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18355,6 +18744,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654085 | bool
   - audit_rules_privileged_commands_chage | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18365,6 +18755,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83765-8
+  - DISA-STIG-RHEL-09-654085
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18383,6 +18774,7 @@
     manager: auto
   tags:
   - CCE-83763-3
+  - DISA-STIG-RHEL-09-654090
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18396,6 +18788,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654090 | bool
   - audit_rules_privileged_commands_chsh | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18493,6 +18886,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654090 | bool
   - audit_rules_privileged_commands_chsh | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18503,6 +18897,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83763-3
+  - DISA-STIG-RHEL-09-654090
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18521,6 +18916,7 @@
     manager: auto
   tags:
   - CCE-83761-7
+  - DISA-STIG-RHEL-09-654095
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18533,6 +18929,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654095 | bool
   - audit_rules_privileged_commands_crontab | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18630,6 +19027,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654095 | bool
   - audit_rules_privileged_commands_crontab | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18640,6 +19038,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83761-7
+  - DISA-STIG-RHEL-09-654095
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18657,6 +19056,7 @@
     manager: auto
   tags:
   - CCE-83773-2
+  - DISA-STIG-RHEL-09-654100
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18670,6 +19070,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654100 | bool
   - audit_rules_privileged_commands_gpasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18767,6 +19168,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654100 | bool
   - audit_rules_privileged_commands_gpasswd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18777,6 +19179,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83773-2
+  - DISA-STIG-RHEL-09-654100
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18795,6 +19198,7 @@
     manager: auto
   tags:
   - CCE-83766-6
+  - DISA-STIG-RHEL-09-654110
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18808,6 +19212,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654110 | bool
   - audit_rules_privileged_commands_newgrp | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18905,6 +19310,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654110 | bool
   - audit_rules_privileged_commands_newgrp | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -18915,6 +19321,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83766-6
+  - DISA-STIG-RHEL-09-654110
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -18933,6 +19340,7 @@
     manager: auto
   tags:
   - CCE-83767-4
+  - DISA-STIG-RHEL-09-654115
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -18945,6 +19353,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654115 | bool
   - audit_rules_privileged_commands_pam_timestamp_check | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19044,6 +19453,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654115 | bool
   - audit_rules_privileged_commands_pam_timestamp_check | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19054,6 +19464,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83767-4
+  - DISA-STIG-RHEL-09-654115
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19071,6 +19482,7 @@
     manager: auto
   tags:
   - CCE-83781-5
+  - DISA-STIG-RHEL-09-654120
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -19084,6 +19496,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654120 | bool
   - audit_rules_privileged_commands_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19181,6 +19594,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654120 | bool
   - audit_rules_privileged_commands_passwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19191,6 +19605,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83781-5
+  - DISA-STIG-RHEL-09-654120
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -19209,6 +19624,7 @@
     manager: auto
   tags:
   - CCE-83769-0
+  - DISA-STIG-RHEL-09-654125
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19221,6 +19637,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654125 | bool
   - audit_rules_privileged_commands_postdrop | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19320,6 +19737,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654125 | bool
   - audit_rules_privileged_commands_postdrop | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19330,6 +19748,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83769-0
+  - DISA-STIG-RHEL-09-654125
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19347,6 +19766,7 @@
     manager: auto
   tags:
   - CCE-83770-8
+  - DISA-STIG-RHEL-09-654130
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19359,6 +19779,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654130 | bool
   - audit_rules_privileged_commands_postqueue | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19458,6 +19879,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654130 | bool
   - audit_rules_privileged_commands_postqueue | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19468,6 +19890,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83770-8
+  - DISA-STIG-RHEL-09-654130
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19485,6 +19908,7 @@
     manager: auto
   tags:
   - CCE-83776-5
+  - DISA-STIG-RHEL-09-654140
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19497,6 +19921,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654140 | bool
   - audit_rules_privileged_commands_ssh_keysign | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19596,6 +20021,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654140 | bool
   - audit_rules_privileged_commands_ssh_keysign | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19606,6 +20032,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83776-5
+  - DISA-STIG-RHEL-09-654140
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19623,6 +20050,7 @@
     manager: auto
   tags:
   - CCE-83771-6
+  - DISA-STIG-RHEL-09-654145
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19635,6 +20063,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654145 | bool
   - audit_rules_privileged_commands_su | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19732,6 +20161,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654145 | bool
   - audit_rules_privileged_commands_su | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19742,6 +20172,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83771-6
+  - DISA-STIG-RHEL-09-654145
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19759,6 +20190,7 @@
     manager: auto
   tags:
   - CCE-83780-7
+  - DISA-STIG-RHEL-09-654150
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19771,6 +20203,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654150 | bool
   - audit_rules_privileged_commands_sudo | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19868,6 +20301,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654150 | bool
   - audit_rules_privileged_commands_sudo | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -19878,6 +20312,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83780-7
+  - DISA-STIG-RHEL-09-654150
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19895,6 +20330,7 @@
     manager: auto
   tags:
   - CCE-83764-1
+  - DISA-STIG-RHEL-09-654155
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -19907,6 +20343,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654155 | bool
   - audit_rules_privileged_commands_sudoedit | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20004,6 +20441,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654155 | bool
   - audit_rules_privileged_commands_sudoedit | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20014,6 +20452,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83764-1
+  - DISA-STIG-RHEL-09-654155
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -20031,6 +20470,7 @@
     manager: auto
   tags:
   - CCE-83762-5
+  - DISA-STIG-RHEL-09-654030
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -20043,6 +20483,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654030 | bool
   - audit_rules_privileged_commands_umount | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20140,6 +20581,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654030 | bool
   - audit_rules_privileged_commands_umount | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20150,6 +20592,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83762-5
+  - DISA-STIG-RHEL-09-654030
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -20167,6 +20610,7 @@
     manager: auto
   tags:
   - CCE-83768-2
+  - DISA-STIG-RHEL-09-654160
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -20186,6 +20630,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654160 | bool
   - audit_rules_privileged_commands_unix_chkpwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20285,6 +20730,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654160 | bool
   - audit_rules_privileged_commands_unix_chkpwd | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20295,6 +20741,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83768-2
+  - DISA-STIG-RHEL-09-654160
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-2(4)
   - NIST-800-53-AC-6(9)
@@ -20319,6 +20766,7 @@
     manager: auto
   tags:
   - CCE-83760-9
+  - DISA-STIG-RHEL-09-654170
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -20331,6 +20779,7 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_654170 | bool
   - audit_rules_privileged_commands_userhelper | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20430,6 +20879,7 @@
       state: present
     when: syscalls_found | length == 0
   when:
+  - DISA_STIG_RHEL_09_654170 | bool
   - audit_rules_privileged_commands_userhelper | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -20440,6 +20890,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83760-9
+  - DISA-STIG-RHEL-09-654170
   - NIST-800-171-3.1.7
   - NIST-800-53-AC-6(9)
   - NIST-800-53-AU-12(c)
@@ -21760,6 +22211,7 @@
   tags:
   - CCE-83695-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-652035
   - NIST-800-171-3.3.1
   - NIST-800-53-AU-4(1)
   - NIST-800-53-CM-6(a)
@@ -21772,6 +22224,7 @@
   - medium_severity
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_652035 | bool
   - auditd_audispd_syslog_plugin_activated | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -21786,6 +22239,7 @@
     line: active = yes
     create: true
   when:
+  - DISA_STIG_RHEL_09_652035 | bool
   - auditd_audispd_syslog_plugin_activated | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -21797,6 +22251,7 @@
   tags:
   - CCE-83695-7
   - CJIS-5.4.1.1
+  - DISA-STIG-RHEL-09-652035
   - NIST-800-171-3.3.1
   - NIST-800-53-AU-4(1)
   - NIST-800-53-CM-6(a)
@@ -21865,6 +22320,7 @@
   tags:
   - CCE-83848-2
   - CJIS-5.5.2.2
+  - DISA-STIG-RHEL-09-212025
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21877,6 +22333,7 @@
   - medium_severity
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_212025 | bool
   - configure_strategy | bool
   - file_groupowner_grub2_cfg | bool
   - low_complexity | bool
@@ -21889,6 +22346,7 @@
     path: /boot/grub2/grub.cfg
   register: file_exists
   when:
+  - DISA_STIG_RHEL_09_212025 | bool
   - configure_strategy | bool
   - file_groupowner_grub2_cfg | bool
   - low_complexity | bool
@@ -21901,6 +22359,7 @@
   tags:
   - CCE-83848-2
   - CJIS-5.5.2.2
+  - DISA-STIG-RHEL-09-212025
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21918,6 +22377,7 @@
     path: /boot/grub2/grub.cfg
     group: '0'
   when:
+  - DISA_STIG_RHEL_09_212025 | bool
   - configure_strategy | bool
   - file_groupowner_grub2_cfg | bool
   - low_complexity | bool
@@ -21931,6 +22391,7 @@
   tags:
   - CCE-83848-2
   - CJIS-5.5.2.2
+  - DISA-STIG-RHEL-09-212025
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21949,6 +22410,7 @@
   tags:
   - CCE-83845-8
   - CJIS-5.5.2.2
+  - DISA-STIG-RHEL-09-212030
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21961,6 +22423,7 @@
   - medium_severity
   - no_reboot_needed
   when:
+  - DISA_STIG_RHEL_09_212030 | bool
   - configure_strategy | bool
   - file_owner_grub2_cfg | bool
   - low_complexity | bool
@@ -21973,6 +22436,7 @@
     path: /boot/grub2/grub.cfg
   register: file_exists
   when:
+  - DISA_STIG_RHEL_09_212030 | bool
   - configure_strategy | bool
   - file_owner_grub2_cfg | bool
   - low_complexity | bool
@@ -21985,6 +22449,7 @@
   tags:
   - CCE-83845-8
   - CJIS-5.5.2.2
+  - DISA-STIG-RHEL-09-212030
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22002,6 +22467,7 @@
     path: /boot/grub2/grub.cfg
     owner: '0'
   when:
+  - DISA_STIG_RHEL_09_212030 | bool
   - configure_strategy | bool
   - file_owner_grub2_cfg | bool
   - low_complexity | bool
@@ -22015,6 +22481,7 @@
   tags:
   - CCE-83845-8
   - CJIS-5.5.2.2
+  - DISA-STIG-RHEL-09-212030
   - NIST-800-171-3.4.5
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22034,6 +22501,7 @@
     line: '*.* @@{{ rsyslog_remote_loghost_address }}'
     create: true
   when:
+  - DISA_STIG_RHEL_09_652055 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -22043,6 +22511,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83990-2
+  - DISA-STIG-RHEL-09-652055
   - NIST-800-53-AU-4(1)
   - NIST-800-53-AU-9(2)
   - NIST-800-53-CM-6(a)
@@ -22067,6 +22536,7 @@
     - name: Intentionally ignored previous 'Disable service autofs' failure, service was already disabled
       meta: noop
   when:
+  - DISA_STIG_RHEL_09_231040 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22076,6 +22546,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83850-8
+  - DISA-STIG-RHEL-09-231040
   - NIST-800-171-3.4.6
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
@@ -22095,6 +22566,7 @@
   failed_when: socket_file_exists.rc not in [0, 1]
   check_mode: false
   when:
+  - DISA_STIG_RHEL_09_231040 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22104,6 +22576,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83850-8
+  - DISA-STIG-RHEL-09-231040
   - NIST-800-171-3.4.6
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
@@ -22123,6 +22596,7 @@
     state: stopped
     masked: 'yes'
   when:
+  - DISA_STIG_RHEL_09_231040 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22133,6 +22607,7 @@
   - socket_file_exists.stdout_lines is search("autofs.socket",multiline=True)
   tags:
   - CCE-83850-8
+  - DISA-STIG-RHEL-09-231040
   - NIST-800-171-3.4.6
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
@@ -22152,6 +22627,7 @@
     regexp: install\s+usb-storage
     line: install usb-storage /bin/true
   when:
+  - DISA_STIG_RHEL_09_291010 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - medium_disruption | bool
@@ -22160,11 +22636,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83851-6
+  - DISA-STIG-RHEL-09-291010
   - NIST-800-171-3.1.21
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
   - NIST-800-53-MP-7
+  - PCI-DSSv4-3.4.2
   - disable_strategy
   - kernel_module_usb-storage_disabled
   - low_complexity
@@ -22179,6 +22657,7 @@
     regexp: ^blacklist usb-storage$
     line: blacklist usb-storage
   when:
+  - DISA_STIG_RHEL_09_291010 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - medium_disruption | bool
@@ -22187,11 +22666,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83851-6
+  - DISA-STIG-RHEL-09-291010
   - NIST-800-171-3.1.21
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
   - NIST-800-53-MP-7
+  - PCI-DSSv4-3.4.2
   - disable_strategy
   - kernel_module_usb-storage_disabled
   - low_complexity
@@ -22210,6 +22691,7 @@
     file_type: any
   register: find_sysctl_d
   when:
+  - DISA_STIG_RHEL_09_213010 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_severity | bool
@@ -22219,6 +22701,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83952-2
+  - DISA-STIG-RHEL-09-213010
   - NIST-800-171-3.1.5
   - NIST-800-53-SI-11(a)
   - NIST-800-53-SI-11(b)
@@ -22236,6 +22719,7 @@
     replace: '#kernel.dmesg_restrict'
   loop: '{{ find_sysctl_d.files }}'
   when:
+  - DISA_STIG_RHEL_09_213010 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_severity | bool
@@ -22245,6 +22729,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83952-2
+  - DISA-STIG-RHEL-09-213010
   - NIST-800-171-3.1.5
   - NIST-800-53-SI-11(a)
   - NIST-800-53-SI-11(b)
@@ -22263,6 +22748,7 @@
     state: present
     reload: true
   when:
+  - DISA_STIG_RHEL_09_213010 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_severity | bool
@@ -22272,6 +22758,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83952-2
+  - DISA-STIG-RHEL-09-213010
   - NIST-800-171-3.1.5
   - NIST-800-53-SI-11(a)
   - NIST-800-53-SI-11(b)
@@ -22304,9 +22791,7 @@
   - CCE-83981-1
   - NIST-800-53-SI-11(a)
   - NIST-800-53-SI-11(b)
-  - PCI-DSSv4-3.3.1.1
-  - PCI-DSSv4-3.3.1.2
-  - PCI-DSSv4-3.3.1.3
+  - PCI-DSSv4-3.3.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -22332,9 +22817,7 @@
   - CCE-83981-1
   - NIST-800-53-SI-11(a)
   - NIST-800-53-SI-11(b)
-  - PCI-DSSv4-3.3.1.1
-  - PCI-DSSv4-3.3.1.2
-  - PCI-DSSv4-3.3.1.3
+  - PCI-DSSv4-3.3.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -22361,9 +22844,7 @@
   - CCE-83981-1
   - NIST-800-53-SI-11(a)
   - NIST-800-53-SI-11(b)
-  - PCI-DSSv4-3.3.1.1
-  - PCI-DSSv4-3.3.1.2
-  - PCI-DSSv4-3.3.1.3
+  - PCI-DSSv4-3.3.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -22374,6 +22855,7 @@
 - name: Update grub defaults and the bootloader menu
   command: /sbin/grubby --update-kernel=ALL --remove-args="noexec"
   when:
+  - DISA_STIG_RHEL_09_213110 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -22383,6 +22865,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83970-4
+  - DISA-STIG-RHEL-09-213110
   - NIST-800-171-3.1.7
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-39
@@ -22404,6 +22887,7 @@
     file_type: any
   register: find_sysctl_d
   when:
+  - DISA_STIG_RHEL_09_213070 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - medium_disruption | bool
@@ -22413,12 +22897,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83971-2
+  - DISA-STIG-RHEL-09-213070
   - NIST-800-171-3.1.7
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-30
   - NIST-800-53-SC-30(2)
   - PCI-DSS-Req-2.2.1
-  - PCI-DSSv4-2.2.3
+  - PCI-DSSv4-3.3.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -22433,6 +22918,7 @@
     replace: '#kernel.randomize_va_space'
   loop: '{{ find_sysctl_d.files }}'
   when:
+  - DISA_STIG_RHEL_09_213070 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - medium_disruption | bool
@@ -22442,12 +22928,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83971-2
+  - DISA-STIG-RHEL-09-213070
   - NIST-800-171-3.1.7
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-30
   - NIST-800-53-SC-30(2)
   - PCI-DSS-Req-2.2.1
-  - PCI-DSSv4-2.2.3
+  - PCI-DSSv4-3.3.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -22463,6 +22950,7 @@
     state: present
     reload: true
   when:
+  - DISA_STIG_RHEL_09_213070 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - medium_disruption | bool
@@ -22472,12 +22960,13 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83971-2
+  - DISA-STIG-RHEL-09-213070
   - NIST-800-171-3.1.7
   - NIST-800-53-CM-6(a)
   - NIST-800-53-SC-30
   - NIST-800-53-SC-30(2)
   - PCI-DSS-Req-2.2.1
-  - PCI-DSSv4-2.2.3
+  - PCI-DSSv4-3.3.1
   - disable_strategy
   - low_complexity
   - medium_disruption
@@ -22494,6 +22983,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22529,6 +23019,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22557,6 +23048,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22583,6 +23075,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22609,6 +23102,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22636,6 +23130,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22663,6 +23158,7 @@
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
+  - PCI-DSSv4-1.2.6
   - grub2_enable_selinux
   - low_complexity
   - low_disruption
@@ -22696,6 +23192,7 @@
       line: SELINUXTYPE={{ var_selinux_policy_name }}
       state: present
   when:
+  - DISA_STIG_RHEL_09_431015 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -22705,12 +23202,14 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-84074-4
+  - DISA-STIG-RHEL-09-431015
   - NIST-800-171-3.1.2
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
   - NIST-800-53-AC-3(3)(a)
   - NIST-800-53-AU-9
   - NIST-800-53-SC-7(21)
+  - PCI-DSSv4-1.2.6
   - low_complexity
   - low_disruption
   - medium_severity
@@ -22744,6 +23243,7 @@
       line: SELINUX={{ var_selinux_state }}
       state: present
   when:
+  - DISA_STIG_RHEL_09_431010 | bool
   - high_severity | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22753,6 +23253,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-84079-3
+  - DISA-STIG-RHEL-09-431010
   - NIST-800-171-3.1.2
   - NIST-800-171-3.7.2
   - NIST-800-53-AC-3
@@ -22915,6 +23416,7 @@
     - name: Intentionally ignored previous 'Disable service kdump' failure, service was already disabled
       meta: noop
   when:
+  - DISA_STIG_RHEL_09_213115 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22924,6 +23426,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-84232-8
+  - DISA-STIG-RHEL-09-213115
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
@@ -22941,6 +23444,7 @@
   failed_when: socket_file_exists.rc not in [0, 1]
   check_mode: false
   when:
+  - DISA_STIG_RHEL_09_213115 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22950,6 +23454,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-84232-8
+  - DISA-STIG-RHEL-09-213115
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
@@ -22967,6 +23472,7 @@
     state: stopped
     masked: 'yes'
   when:
+  - DISA_STIG_RHEL_09_213115 | bool
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -22977,6 +23483,7 @@
   - socket_file_exists.stdout_lines is search("kdump.socket",multiline=True)
   tags:
   - CCE-84232-8
+  - DISA-STIG-RHEL-09-213115
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
@@ -23194,10 +23701,12 @@
     state: absent
   tags:
   - CCE-84143-7
+  - DISA-STIG-RHEL-09-215035
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
   - NIST-800-53-IA-5(1)(c)
+  - PCI-DSSv4-2.2.4
   - disable_strategy
   - high_severity
   - low_complexity
@@ -23205,6 +23714,7 @@
   - no_reboot_needed
   - package_rsh-server_removed
   when:
+  - DISA_STIG_RHEL_09_215035 | bool
   - disable_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -23416,6 +23926,7 @@
     state: absent
   tags:
   - CCE-84158-5
+  - PCI-DSSv4-2.2.4
   - disable_strategy
   - low_complexity
   - low_disruption
@@ -23457,6 +23968,7 @@
     state: absent
   tags:
   - CCE-84149-4
+  - DISA-STIG-RHEL-09-215040
   - NIST-800-53-CM-6(a)
   - NIST-800-53-CM-7(a)
   - NIST-800-53-CM-7(b)
@@ -23469,6 +23981,7 @@
   - no_reboot_needed
   - package_telnet-server_removed
   when:
+  - DISA_STIG_RHEL_09_215040 | bool
   - disable_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -23631,6 +24144,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255080 | bool
   - disable_host_auth | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -23641,6 +24155,7 @@
   tags:
   - CCE-90816-0
   - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255080
   - NIST-800-171-3.1.12
   - NIST-800-53-AC-17(a)
   - NIST-800-53-AC-3
@@ -23736,6 +24251,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255130 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -23745,6 +24261,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90801-2
+  - DISA-STIG-RHEL-09-255130
   - NIST-800-171-3.1.12
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -23795,6 +24312,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255040 | bool
   - high_severity | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -23805,6 +24323,7 @@
   tags:
   - CCE-90799-8
   - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255040
   - NIST-800-171-3.1.1
   - NIST-800-171-3.1.5
   - NIST-800-53-AC-17(a)
@@ -23858,6 +24377,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255135 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -23867,6 +24387,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90808-7
+  - DISA-STIG-RHEL-09-255135
   - NIST-800-171-3.1.12
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -23917,6 +24438,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255140 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -23926,6 +24448,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90802-0
+  - DISA-STIG-RHEL-09-255140
   - NIST-800-171-3.1.12
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -23976,6 +24499,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255045 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -23986,6 +24510,7 @@
   tags:
   - CCE-90800-4
   - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255045
   - NIST-800-171-3.1.1
   - NIST-800-171-3.1.5
   - NIST-800-53-AC-17(a)
@@ -24042,6 +24567,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255085 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -24052,6 +24578,7 @@
   tags:
   - CCE-90803-8
   - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255085
   - NIST-800-171-3.1.12
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -24104,6 +24631,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255160 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -24113,6 +24641,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-90809-5
+  - DISA-STIG-RHEL-09-255160
   - NIST-800-171-3.1.12
   - NIST-800-53-AC-17(a)
   - NIST-800-53-AC-6
@@ -24162,6 +24691,7 @@
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
   when:
+  - DISA_STIG_RHEL_09_255025 | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
@@ -24172,13 +24702,13 @@
   tags:
   - CCE-90807-9
   - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255025
   - NIST-800-171-3.1.9
   - NIST-800-53-AC-17(a)
   - NIST-800-53-AC-8(a)
   - NIST-800-53-AC-8(c)
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-2.2.4
-  - PCI-DSSv4-2.2.6
   - low_complexity
   - low_disruption
   - medium_severity
