@@ -28,7 +28,6 @@ DISA_STIG_RHEL_09_214015: true
 DISA_STIG_RHEL_09_214020: true
 DISA_STIG_RHEL_09_214025: true
 DISA_STIG_RHEL_09_214030: true
-DISA_STIG_RHEL_09_215035: true
 DISA_STIG_RHEL_09_215040: true
 DISA_STIG_RHEL_09_231040: true
 DISA_STIG_RHEL_09_255025: true
@@ -190,12 +189,10 @@ no_direct_root_logins: true
 no_empty_passwords: true
 no_reboot_needed: true
 no_rsh_trust_files: true
-package_rsh_server_removed: true
 package_talk_removed: true
 package_talk_server_removed: true
 package_telnet_removed: true
 package_telnet_server_removed: true
-package_xinetd_removed: true
 reboot_required: true
 require_singleuser_auth: true
 restrict_serial_port_logins: true
@@ -214,9 +211,7 @@ service_autofs_disabled: true
 service_crond_enabled: true
 service_debug_shell_disabled: true
 service_kdump_disabled: true
-service_rlogin_disabled: true
 service_telnet_disabled: true
-service_xinetd_disabled: true
 sshd_allow_only_protocol2: true
 sshd_disable_compression: true
 sshd_disable_empty_passwords: true
