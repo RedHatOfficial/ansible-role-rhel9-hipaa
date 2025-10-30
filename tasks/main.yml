@@ -1,3 +1,33 @@
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+  tags:
+  - CCE-90841-8
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - PCI-DSSv4-11.5.2
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_hashes
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_hashes | bool
+
 - name: 'Set fact: Package manager reinstall command'
   set_fact:
     package_manager_reinstall_cmd: dnf reinstall -y
@@ -8,6 +38,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_hashes | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - ansible_distribution in [ "Fedora", "RedHat", "CentOS", "OracleLinux" ]
   tags:
   - CCE-90841-8
@@ -39,6 +71,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_hashes | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - ansible_distribution == "SLES"
   tags:
   - CCE-90841-8
@@ -73,6 +107,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_hashes | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - (package_manager_reinstall_cmd is defined)
   tags:
   - CCE-90841-8
@@ -108,6 +144,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_hashes | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - files_with_incorrect_hash.stdout_lines is defined
   - (files_with_incorrect_hash.stdout_lines | length > 0)
   tags:
@@ -140,6 +178,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_hashes | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - files_with_incorrect_hash.stdout_lines is defined
   - (package_manager_reinstall_cmd is defined and (files_with_incorrect_hash.stdout_lines | length > 0))
   tags:
@@ -162,12 +202,9 @@
   - restrict_strategy
   - rpm_verify_hashes
 
-- name: Read list of files with incorrect permissions
-  command: rpm -Va --nodeps --nosignature --nofiledigest --nosize --nomtime --nordev --nocaps --nolinkto --nouser --nogroup
-  register: files_with_incorrect_permissions
-  failed_when: files_with_incorrect_permissions.rc > 1
-  changed_when: false
-  check_mode: false
+- name: Gather the package facts
+  package_facts:
+    manager: auto
   tags:
   - CCE-90840-0
   - CJIS-5.10.4.1
@@ -196,6 +233,42 @@
   - restrict_strategy | bool
   - rpm_verify_permissions | bool
 
+- name: Read list of files with incorrect permissions
+  command: rpm -Va --nodeps --nosignature --nofiledigest --nosize --nomtime --nordev --nocaps --nolinkto --nouser --nogroup
+  register: files_with_incorrect_permissions
+  failed_when: files_with_incorrect_permissions.rc > 1
+  changed_when: false
+  check_mode: false
+  when:
+  - high_complexity | bool
+  - high_severity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - rpm_verify_permissions | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
+  tags:
+  - CCE-90840-0
+  - CJIS-5.10.4.1
+  - NIST-800-171-3.3.8
+  - NIST-800-171-3.4.1
+  - NIST-800-53-AU-9(3)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-6(c)
+  - NIST-800-53-CM-6(d)
+  - NIST-800-53-SI-7
+  - NIST-800-53-SI-7(1)
+  - NIST-800-53-SI-7(6)
+  - PCI-DSS-Req-11.5
+  - PCI-DSSv4-11.5.2
+  - high_complexity
+  - high_severity
+  - medium_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - rpm_verify_permissions
+
 - name: Create list of packages
   command: rpm -qf "{{ item }}"
   with_items: '{{ files_with_incorrect_permissions.stdout_lines | map(''regex_findall'', ''^[.]+[M]+.* (\/.*)'', ''\1'') |
@@ -210,6 +283,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_permissions | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - (files_with_incorrect_permissions.stdout_lines | length > 0)
   tags:
   - CCE-90840-0
@@ -242,6 +317,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - rpm_verify_permissions | bool
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - (files_with_incorrect_permissions.stdout_lines | length > 0)
   tags:
   - CCE-90840-0
@@ -272,9 +349,9 @@
     create: true
   tags:
   - CCE-83450-7
+  - DISA-STIG-RHEL-09-215105
   - DISA-STIG-RHEL-09-671010
   - DISA-STIG-RHEL-09-672030
-  - DISA-STIG-RHEL-09-672045
   - NIST-800-53-AC-17(2)
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -291,9 +368,9 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_215105 | bool
   - DISA_STIG_RHEL_09_671010 | bool
   - DISA_STIG_RHEL_09_672030 | bool
-  - DISA_STIG_RHEL_09_672045 | bool
   - configure_crypto_policy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -305,9 +382,9 @@
   command: /usr/bin/update-crypto-policies --set {{ var_system_crypto_policy }}
   tags:
   - CCE-83450-7
+  - DISA-STIG-RHEL-09-215105
   - DISA-STIG-RHEL-09-671010
   - DISA-STIG-RHEL-09-672030
-  - DISA-STIG-RHEL-09-672045
   - NIST-800-53-AC-17(2)
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -324,9 +401,9 @@
   - no_reboot_needed
   - restrict_strategy
   when:
+  - DISA_STIG_RHEL_09_215105 | bool
   - DISA_STIG_RHEL_09_671010 | bool
   - DISA_STIG_RHEL_09_672030 | bool
-  - DISA_STIG_RHEL_09_672045 | bool
   - configure_crypto_policy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -341,6 +418,7 @@
     regexp: (?i)^\s*CRYPTO_POLICY.*$
   tags:
   - CCE-83445-7
+  - DISA-STIG-RHEL-09-255075
   - NIST-800-53-AC-17(2)
   - NIST-800-53-AC-17(a)
   - NIST-800-53-CM-6(a)
@@ -356,6 +434,7 @@
   - medium_severity
   - reboot_required
   when:
+  - DISA_STIG_RHEL_09_255075 | bool
   - configure_ssh_crypto_policy | bool
   - disable_strategy | bool
   - low_complexity | bool
@@ -399,7 +478,7 @@
   - no_reboot_needed | bool
   - unknown_strategy | bool
   - '"gdm" in ansible_facts.packages'
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - '"kernel" in ansible_facts.packages'
   tags:
   - CCE-87295-2
   - DISA-STIG-RHEL-09-271090
@@ -1553,12 +1632,102 @@
   - require_singleuser_auth | bool
   - restrict_strategy | bool
 
+- name: Require Authentication for Single User Mode - find files which already override Execstart of rescue.service
+  ansible.builtin.find:
+    paths: /etc/systemd/system/rescue.service.d
+    patterns: '*.conf'
+    contains: ^\s*ExecStart=.*$
+  register: rescue_service_overrides_found
+  when:
+  - DISA_STIG_RHEL_09_611200 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - require_singleuser_auth | bool
+  - restrict_strategy | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-83594-2
+  - DISA-STIG-RHEL-09-611200
+  - NIST-800-171-3.1.1
+  - NIST-800-171-3.4.5
+  - NIST-800-53-AC-3
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-IA-2
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - require_singleuser_auth
+  - restrict_strategy
+
+- name: Require Authentication for Single User Mode - set files containing ExecStart overrides as target
+  ansible.builtin.set_fact:
+    rescue_service_remediation_target_file: '{{ rescue_service_overrides_found.files | map(attribute=''path'') | list }}'
+  when:
+  - DISA_STIG_RHEL_09_611200 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - require_singleuser_auth | bool
+  - restrict_strategy | bool
+  - '"kernel" in ansible_facts.packages'
+  - rescue_service_overrides_found.matched is defined and rescue_service_overrides_found.matched > 0
+  tags:
+  - CCE-83594-2
+  - DISA-STIG-RHEL-09-611200
+  - NIST-800-171-3.1.1
+  - NIST-800-171-3.4.5
+  - NIST-800-53-AC-3
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-IA-2
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - require_singleuser_auth
+  - restrict_strategy
+
+- name: Require Authentication for Single User Mode - set default target for rescue.service override
+  ansible.builtin.set_fact:
+    rescue_service_remediation_target_file:
+    - /etc/systemd/system/rescue.service.d/10-oscap.conf
+  when:
+  - DISA_STIG_RHEL_09_611200 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - require_singleuser_auth | bool
+  - restrict_strategy | bool
+  - '"kernel" in ansible_facts.packages'
+  - rescue_service_overrides_found.matched is defined and rescue_service_overrides_found.matched == 0
+  tags:
+  - CCE-83594-2
+  - DISA-STIG-RHEL-09-611200
+  - NIST-800-171-3.1.1
+  - NIST-800-171-3.4.5
+  - NIST-800-53-AC-3
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-IA-2
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - require_singleuser_auth
+  - restrict_strategy
+
 - name: Require Authentication for Single User Mode - Require emergency user mode password
   community.general.ini_file:
-    path: /etc/systemd/system/rescue.service.d/10-oscap.conf
+    path: '{{ item }}'
     section: Service
     option: ExecStart
-    value: -/usr/lib/systemd/systemd-sulogin-shell rescue
+    values:
+    - ''
+    - -/usr/lib/systemd/systemd-sulogin-shell rescue
+  loop: '{{ rescue_service_remediation_target_file }}'
   when:
   - DISA_STIG_RHEL_09_611200 | bool
   - low_complexity | bool
@@ -1895,8 +2064,9 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
-  - '"grub2-common" in ansible_facts.packages'
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - ( "grub2-common" in ansible_facts.packages and "kernel" in ansible_facts.packages )
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   tags:
   - CCE-83848-2
   - CJIS-5.5.2.2
@@ -1927,8 +2097,9 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
-  - '"grub2-common" in ansible_facts.packages'
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - ( "grub2-common" in ansible_facts.packages and "kernel" in ansible_facts.packages )
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
   - CCE-83848-2
@@ -1988,8 +2159,9 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
-  - '"grub2-common" in ansible_facts.packages'
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - ( "grub2-common" in ansible_facts.packages and "kernel" in ansible_facts.packages )
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   tags:
   - CCE-83845-8
   - CJIS-5.5.2.2
@@ -2020,8 +2192,9 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
-  - '"grub2-common" in ansible_facts.packages'
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - ( "grub2-common" in ansible_facts.packages and "kernel" in ansible_facts.packages )
+  - not ( "kernel" in ansible_facts.packages and "rpm-ostree" in ansible_facts.packages and "bootc" in ansible_facts.packages
+    and not "openshift-kubelet" in ansible_facts.packages )
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
   - CCE-83845-8
@@ -3428,6 +3601,56 @@
   package_facts:
     manager: auto
   tags:
+  - CCE-86170-8
+  - DISA-STIG-RHEL-09-232040
+  - NIST-800-53-CM-6(a)
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.6
+  - enable_strategy
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - package_cron_installed
+  when:
+  - DISA_STIG_RHEL_09_232040 | bool
+  - enable_strategy | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - package_cron_installed | bool
+
+- name: Ensure cronie is installed
+  package:
+    name: cronie
+    state: present
+  when:
+  - DISA_STIG_RHEL_09_232040 | bool
+  - enable_strategy | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - package_cron_installed | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-86170-8
+  - DISA-STIG-RHEL-09-232040
+  - NIST-800-53-CM-6(a)
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.6
+  - enable_strategy
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - package_cron_installed
+
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+  tags:
   - CCE-84163-5
   - NIST-800-53-CM-6(a)
   - enable_strategy
@@ -3967,6 +4190,38 @@
   - no_reboot_needed
   - restrict_strategy
 
+- name: Disable Host-Based Authentication - set file mode for /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+    mode: '0600'
+  when:
+  - DISA_STIG_RHEL_09_255080 | bool
+  - disable_host_auth | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90816-0
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255080
+  - NIST-800-171-3.1.12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-3
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - PCI-DSSv4-8.3
+  - PCI-DSSv4-8.3.1
+  - disable_host_auth
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
 - name: Gather the package facts
   package_facts:
     manager: auto
@@ -4058,6 +4313,36 @@
   - restrict_strategy
   - sshd_allow_only_protocol2
 
+- name: Allow Only SSH Protocol 2 - set file mode for /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+    mode: '0600'
+  when:
+  - high_severity | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_allow_only_protocol2 | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90812-9
+  - CJIS-5.5.6
+  - NIST-800-171-3.1.13
+  - NIST-800-171-3.5.4
+  - NIST-800-53-AC-17(2)
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-IA-5(1)(c)
+  - NIST-800-53-MA-4(6)
+  - NIST-800-53-SC-13
+  - high_severity
+  - low_complexity
+  - low_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_allow_only_protocol2
+
 - name: Gather the package facts
   package_facts:
     manager: auto
@@ -4121,6 +4406,34 @@
       state: present
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
+  when:
+  - DISA_STIG_RHEL_09_255130 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_disable_compression | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90801-2
+  - DISA-STIG-RHEL-09-255130
+  - NIST-800-171-3.1.12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_disable_compression
+
+- name: Disable Compression Or Set Compression to delayed - set file mode for /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_255130 | bool
   - low_complexity | bool
@@ -4242,6 +4555,39 @@
   - restrict_strategy
   - sshd_disable_empty_passwords
 
+- name: Disable SSH Access via Empty Passwords - set file mode for /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+    mode: '0600'
+  when:
+  - DISA_STIG_RHEL_09_255040 | bool
+  - high_severity | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_disable_empty_passwords | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90799-8
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255040
+  - NIST-800-171-3.1.1
+  - NIST-800-171-3.1.5
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - PCI-DSS-Req-2.2.4
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.6
+  - high_severity
+  - low_complexity
+  - low_disruption
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_disable_empty_passwords
+
 - name: Gather the package facts
   package_facts:
     manager: auto
@@ -4329,6 +4675,34 @@
   - restrict_strategy
   - sshd_disable_gssapi_auth
 
+- name: Disable GSSAPI Authentication - set file mode for /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+    mode: '0600'
+  when:
+  - DISA_STIG_RHEL_09_255135 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_disable_gssapi_auth | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90808-7
+  - DISA-STIG-RHEL-09-255135
+  - NIST-800-171-3.1.12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_disable_gssapi_auth
+
 - name: Gather the package facts
   package_facts:
     manager: auto
@@ -4392,6 +4766,34 @@
       state: present
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
+  when:
+  - DISA_STIG_RHEL_09_255140 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_disable_kerb_auth | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90802-0
+  - DISA-STIG-RHEL-09-255140
+  - NIST-800-171-3.1.12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_disable_kerb_auth
+
+- name: Disable Kerberos Authentication - set file mode for /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_255140 | bool
   - low_complexity | bool
@@ -4519,6 +4921,42 @@
   - restrict_strategy
   - sshd_disable_root_login
 
+- name: Disable SSH Root Login - set file mode for /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+    mode: '0600'
+  when:
+  - DISA_STIG_RHEL_09_255045 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_disable_root_login | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90800-4
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255045
+  - NIST-800-171-3.1.1
+  - NIST-800-171-3.1.5
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-6(2)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - NIST-800-53-IA-2
+  - NIST-800-53-IA-2(5)
+  - PCI-DSS-Req-2.2.4
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.6
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_disable_root_login
+
 - name: Gather the package facts
   package_facts:
     manager: auto
@@ -4586,6 +5024,38 @@
       state: present
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
+  when:
+  - DISA_STIG_RHEL_09_255085 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_do_not_permit_user_env | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90803-8
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255085
+  - NIST-800-171-3.1.12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - PCI-DSS-Req-2.2.4
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.6
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_do_not_permit_user_env
+
+- name: Do Not Allow SSH Environment Options - set file mode for /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_255085 | bool
   - low_complexity | bool
@@ -4699,6 +5169,33 @@
   - restrict_strategy
   - sshd_enable_strictmodes
 
+- name: Enable Use of Strict Mode Checking - set file mode for /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/01-complianceascode-reinforce-os-defaults.conf
+    mode: '0600'
+  when:
+  - DISA_STIG_RHEL_09_255160 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_enable_strictmodes | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90809-5
+  - DISA-STIG-RHEL-09-255160
+  - NIST-800-171-3.1.12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-6
+  - NIST-800-53-CM-6(a)
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_enable_strictmodes
+
 - name: Gather the package facts
   package_facts:
     manager: auto
@@ -4764,6 +5261,36 @@
       state: present
       insertbefore: BOF
       validate: /usr/sbin/sshd -t -f %s
+  when:
+  - DISA_STIG_RHEL_09_255025 | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_enable_warning_banner | bool
+  - '"kernel" in ansible_facts.packages'
+  tags:
+  - CCE-90807-9
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-09-255025
+  - NIST-800-171-3.1.9
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-8(a)
+  - NIST-800-53-AC-8(c)
+  - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-2.2.4
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_enable_warning_banner
+
+- name: Enable SSH Warning Banner - set file mode for /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/00-complianceascode-hardening.conf
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_255025 | bool
   - low_complexity | bool
@@ -5040,7 +5567,7 @@
     path: '{{ item }}'
     create: true
     line: -e 2
-    mode: o-rwx
+    mode: g-rwx,o-rwx
   loop:
   - /etc/audit/audit.rules
   - /etc/audit/rules.d/immutable.rules
@@ -5233,7 +5760,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/selinux/ -p wa -k MAC-policy
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_mac_modification | bool
   - low_complexity | bool
@@ -5299,7 +5826,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_mac_modification | bool
   - low_complexity | bool
@@ -5434,13 +5961,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -5469,13 +5997,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -5551,13 +6080,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -5586,13 +6116,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -5732,13 +6263,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_rules_networkconfig_modification
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -5770,13 +6302,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_rules_networkconfig_modification
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -5854,13 +6387,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F key=audit_rules_networkconfig_modification
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -5892,13 +6426,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F key=audit_rules_networkconfig_modification
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -6067,7 +6602,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/issue -p wa -k audit_rules_networkconfig_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6135,7 +6670,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6302,7 +6837,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/issue.net -p wa -k audit_rules_networkconfig_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6370,7 +6905,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6537,7 +7072,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/hosts -p wa -k audit_rules_networkconfig_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6605,7 +7140,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6772,7 +7307,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/sysconfig/network -p wa -k audit_rules_networkconfig_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -6840,7 +7375,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_networkconfig_modification | bool
   - low_complexity | bool
@@ -7035,7 +7570,7 @@
     path: '{{ all_files[0] }}'
     line: -w /var/run/utmp -p wa -k session
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_session_events | bool
   - low_complexity | bool
@@ -7103,7 +7638,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_session_events | bool
   - low_complexity | bool
@@ -7270,7 +7805,7 @@
     path: '{{ all_files[0] }}'
     line: -w /var/log/btmp -p wa -k session
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_session_events | bool
   - low_complexity | bool
@@ -7338,7 +7873,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_session_events | bool
   - low_complexity | bool
@@ -7505,7 +8040,7 @@
     path: '{{ all_files[0] }}'
     line: -w /var/log/wtmp -p wa -k session
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_session_events | bool
   - low_complexity | bool
@@ -7573,7 +8108,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_session_events | bool
   - low_complexity | bool
@@ -7675,7 +8210,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_sysadmin_actions | bool
   - low_complexity | bool
@@ -7857,7 +8392,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/sudoers -p wa -k actions
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_sysadmin_actions | bool
   - low_complexity | bool
@@ -7931,7 +8466,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_sysadmin_actions | bool
   - low_complexity | bool
@@ -8113,7 +8648,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/sudoers.d/ -p wa -k actions
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_sysadmin_actions | bool
   - low_complexity | bool
@@ -8236,6 +8771,7 @@
   lineinfile:
     path: '{{ item }}'
     create: true
+    mode: '0600'
     line: -f {{ var_audit_failure_mode }}
   loop:
   - /etc/audit/audit.rules
@@ -8451,7 +8987,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/group -p wa -k audit_rules_usergroup_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
@@ -8527,7 +9063,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654225 | bool
   - audit_rules_usergroup_modification_group | bool
@@ -8746,7 +9282,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/gshadow -p wa -k audit_rules_usergroup_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
@@ -8822,7 +9358,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654230 | bool
   - audit_rules_usergroup_modification_gshadow | bool
@@ -9041,7 +9577,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/security/opasswd -p wa -k audit_rules_usergroup_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
@@ -9117,7 +9653,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654235 | bool
   - audit_rules_usergroup_modification_opasswd | bool
@@ -9336,7 +9872,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/passwd -p wa -k audit_rules_usergroup_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
@@ -9412,7 +9948,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654240 | bool
   - audit_rules_usergroup_modification_passwd | bool
@@ -9631,7 +10167,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/shadow -p wa -k audit_rules_usergroup_modification
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
@@ -9707,7 +10243,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654245 | bool
   - audit_rules_usergroup_modification_shadow | bool
@@ -9851,13 +10387,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -9889,13 +10426,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -9975,13 +10513,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10013,13 +10552,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -10164,13 +10704,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10203,13 +10744,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -10290,13 +10832,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10329,13 +10872,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -10478,13 +11022,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10516,13 +11061,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -10601,13 +11147,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10639,13 +11186,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -10787,13 +11335,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10825,13 +11374,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -10910,13 +11460,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -10948,13 +11499,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -11097,13 +11649,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11136,13 +11689,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -11222,13 +11776,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11261,13 +11816,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -11410,13 +11966,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11449,13 +12006,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -11535,13 +12093,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11574,13 +12133,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -11725,13 +12285,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11766,13 +12327,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11824,13 +12386,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11865,13 +12428,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -11953,13 +12517,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -11994,13 +12559,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12052,13 +12618,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12093,13 +12660,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -12244,13 +12812,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12285,13 +12854,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12343,13 +12913,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12384,13 +12955,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -12472,13 +13044,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12513,13 +13086,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12571,13 +13145,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12612,13 +13187,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -12762,13 +13338,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12801,13 +13378,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -12888,13 +13466,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -12927,13 +13506,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -13079,13 +13659,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13120,13 +13701,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13178,13 +13760,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13219,13 +13802,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -13307,13 +13891,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13348,13 +13933,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13406,13 +13992,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13447,13 +14034,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -13598,13 +14186,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13639,13 +14228,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13697,13 +14287,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13738,13 +14329,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -13826,13 +14418,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13867,13 +14460,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13925,13 +14519,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -13966,13 +14561,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -14117,13 +14713,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14158,13 +14755,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14216,13 +14814,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14257,13 +14856,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -14345,13 +14945,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14386,13 +14987,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14444,13 +15046,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14485,13 +15088,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -14636,13 +15240,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14677,13 +15282,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14735,13 +15341,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14776,13 +15383,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -14864,13 +15472,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14905,13 +15514,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -14963,13 +15573,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15004,13 +15615,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid=0 -F key=perm_mod
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -15113,13 +15725,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15148,13 +15761,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -15251,6 +15865,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -15258,7 +15873,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15287,6 +15902,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -15294,7 +15910,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -15392,6 +16008,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -15399,7 +16016,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15428,6 +16045,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -15435,7 +16053,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -15535,6 +16153,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -15542,7 +16161,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15571,6 +16190,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -15578,7 +16198,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -15719,13 +16339,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15759,13 +16380,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -15847,13 +16469,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -15887,13 +16510,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16038,13 +16662,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -16078,13 +16703,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16165,13 +16791,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -16205,13 +16832,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16356,13 +16984,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -16396,13 +17025,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16484,13 +17114,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -16524,13 +17155,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16676,13 +17308,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -16716,13 +17349,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16804,13 +17438,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -16844,13 +17479,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -16995,13 +17631,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17035,13 +17672,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -17122,13 +17760,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17162,13 +17801,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=delete
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -17311,13 +17951,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17353,13 +17994,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -17441,13 +18083,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17483,13 +18126,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -17572,13 +18216,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17614,13 +18259,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -17702,13 +18348,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17744,13 +18391,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -17891,13 +18539,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -17933,13 +18582,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18020,13 +18670,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18062,13 +18713,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18150,13 +18802,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18192,13 +18845,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18279,13 +18933,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18321,13 +18976,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18468,13 +19124,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18510,13 +19167,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18598,13 +19256,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18640,13 +19299,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18729,13 +19389,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18771,13 +19432,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -18859,13 +19521,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -18901,13 +19564,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19048,13 +19712,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19090,13 +19755,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19177,13 +19843,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19219,13 +19886,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19307,13 +19975,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19349,13 +20018,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19436,13 +20106,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19478,13 +20149,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19624,13 +20296,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19666,13 +20339,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19753,13 +20427,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19795,13 +20470,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -19883,13 +20559,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -19925,13 +20602,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20012,13 +20690,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20054,13 +20733,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20200,13 +20880,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20242,13 +20923,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20329,13 +21011,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20371,13 +21054,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20459,13 +21143,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20501,13 +21186,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20588,13 +21274,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20630,13 +21317,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20769,13 +21457,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20804,13 +21493,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -20884,13 +21574,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -20919,13 +21610,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -21060,13 +21752,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -21097,13 +21790,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -21179,13 +21873,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -21216,13 +21911,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F auid>=1000 -F auid!=unset -F key=module-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -21428,7 +22124,7 @@
     path: '{{ all_files[0] }}'
     line: -w {{ var_accounts_passwords_pam_faillock_dir }} -p wa -k logins
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
@@ -21500,7 +22196,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654250 | bool
   - audit_rules_login_events_faillock | bool
@@ -21707,7 +22403,7 @@
     path: '{{ all_files[0] }}'
     line: -w /var/log/lastlog -p wa -k logins
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
@@ -21779,7 +22475,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654255 | bool
   - audit_rules_login_events_lastlog | bool
@@ -21986,7 +22682,7 @@
     path: '{{ all_files[0] }}'
     line: -w /var/log/tallylog -p wa -k logins
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
@@ -22058,7 +22754,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - DISA_STIG_RHEL_09_654260 | bool
   - audit_rules_login_events_tallylog | bool
@@ -22161,13 +22857,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -22196,13 +22893,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -22303,13 +23001,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -22338,13 +23037,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -22444,13 +23144,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -22479,13 +23180,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -22585,13 +23287,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -22620,13 +23323,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -22727,13 +23431,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -22762,13 +23467,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -22868,6 +23574,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -22875,7 +23582,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset
         -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -22904,6 +23611,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -22911,7 +23619,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset
         -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23011,13 +23719,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23046,13 +23755,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23152,6 +23862,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -23159,7 +23870,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23188,6 +23899,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -23195,7 +23907,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23294,6 +24006,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -23301,7 +24014,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23330,6 +24043,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -23337,7 +24051,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23436,6 +24150,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -23443,7 +24158,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset
         -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23472,6 +24187,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -23479,7 +24195,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset
         -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23578,13 +24294,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23613,13 +24330,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23718,13 +24436,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23753,13 +24472,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23858,13 +24578,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -23893,13 +24614,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -23998,13 +24720,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24033,13 +24756,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -24145,6 +24869,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -24152,7 +24877,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset
         -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24181,6 +24906,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -24188,7 +24914,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset
         -F key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -24294,6 +25020,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -24301,7 +25028,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24330,6 +25057,7 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
@@ -24337,7 +25065,7 @@
       line: -a always,exit{{ syscalls | join(',') }} -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -F
         key=privileged
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -24473,13 +25201,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24511,13 +25240,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -24594,13 +25324,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24632,13 +25363,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -24774,13 +25506,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24809,13 +25542,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -24890,13 +25624,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -24925,13 +25660,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -25070,13 +25806,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -25108,13 +25845,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -25192,13 +25930,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -25230,13 +25969,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -25343,13 +26083,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   - name: Declare list of syscalls
@@ -25381,13 +26122,14 @@
       line: \1\2\3{{ missing_syscalls | join("\3") }}\4
       backrefs: true
       state: present
+      mode: g-rwx,o-rwx
     when: syscalls_found | length > 0 and missing_syscalls | length > 0
   - name: Add the audit rule to {{ audit_file }}
     lineinfile:
       path: '{{ audit_file }}'
       line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F key=audit_time_rules
       create: true
-      mode: o-rwx
+      mode: g-rwx,o-rwx
       state: present
     when: syscalls_found | length == 0
   when:
@@ -25584,7 +26326,7 @@
     path: '{{ all_files[0] }}'
     line: -w /etc/localtime -p wa -k audit_time_rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_time_watch_localtime | bool
   - low_complexity | bool
@@ -25652,7 +26394,7 @@
     state: present
     dest: /etc/audit/audit.rules
     create: true
-    mode: '0640'
+    mode: '0600'
   when:
   - audit_rules_time_watch_localtime | bool
   - low_complexity | bool
@@ -25687,7 +26429,6 @@
   tags:
   - CCE-83695-7
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-09-652035
   - NIST-800-171-3.3.1
   - NIST-800-53-AU-4(1)
   - NIST-800-53-CM-6(a)
@@ -25701,7 +26442,6 @@
   - medium_severity
   - no_reboot_needed
   when:
-  - DISA_STIG_RHEL_09_652035 | bool
   - auditd_audispd_syslog_plugin_activated | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -25716,7 +26456,6 @@
     line: active = yes
     create: true
   when:
-  - DISA_STIG_RHEL_09_652035 | bool
   - auditd_audispd_syslog_plugin_activated | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -25728,7 +26467,6 @@
   tags:
   - CCE-83695-7
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-09-652035
   - NIST-800-171-3.3.1
   - NIST-800-53-AU-4(1)
   - NIST-800-53-CM-6(a)
