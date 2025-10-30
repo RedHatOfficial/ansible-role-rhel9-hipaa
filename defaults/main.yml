@@ -34,7 +34,6 @@ DISA_STIG_RHEL_09_232040: true
 DISA_STIG_RHEL_09_255025: true
 DISA_STIG_RHEL_09_255040: true
 DISA_STIG_RHEL_09_255045: true
-DISA_STIG_RHEL_09_255075: true
 DISA_STIG_RHEL_09_255080: true
 DISA_STIG_RHEL_09_255085: true
 DISA_STIG_RHEL_09_255130: true
@@ -135,7 +134,9 @@ audit_rules_privileged_commands_sudoedit: true
 audit_rules_privileged_commands_umount: true
 audit_rules_privileged_commands_unix_chkpwd: true
 audit_rules_privileged_commands_userhelper: true
-audit_rules_session_events: true
+audit_rules_session_events_btmp: true
+audit_rules_session_events_utmp: true
+audit_rules_session_events_wtmp: true
 audit_rules_sysadmin_actions: true
 audit_rules_system_shutdown: true
 audit_rules_time_adjtimex: true
@@ -190,8 +191,6 @@ no_empty_passwords: true
 no_reboot_needed: true
 no_rsh_trust_files: true
 package_cron_installed: true
-package_talk_removed: true
-package_talk_server_removed: true
 package_telnet_removed: true
 package_telnet_server_removed: true
 reboot_required: true
