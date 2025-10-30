@@ -84,7 +84,6 @@ DISA_STIG_RHEL_09_654255: true
 DISA_STIG_RHEL_09_654260: true
 DISA_STIG_RHEL_09_654265: true
 DISA_STIG_RHEL_09_654275: true
-DISA_STIG_RHEL_09_671010: true
 DISA_STIG_RHEL_09_672030: true
 DISA_STIG_needed_rules: true
 audit_rules_dac_modification_chmod: true
@@ -212,6 +211,7 @@ service_crond_enabled: true
 service_debug_shell_disabled: true
 service_kdump_disabled: true
 service_telnet_disabled: true
+special_service_block: true
 sshd_allow_only_protocol2: true
 sshd_disable_compression: true
 sshd_disable_empty_passwords: true
