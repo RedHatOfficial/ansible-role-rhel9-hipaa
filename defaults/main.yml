@@ -28,10 +28,13 @@ DISA_STIG_RHEL_09_214015: true
 DISA_STIG_RHEL_09_214020: true
 DISA_STIG_RHEL_09_214025: true
 DISA_STIG_RHEL_09_215040: true
+DISA_STIG_RHEL_09_215105: true
 DISA_STIG_RHEL_09_231040: true
+DISA_STIG_RHEL_09_232040: true
 DISA_STIG_RHEL_09_255025: true
 DISA_STIG_RHEL_09_255040: true
 DISA_STIG_RHEL_09_255045: true
+DISA_STIG_RHEL_09_255075: true
 DISA_STIG_RHEL_09_255080: true
 DISA_STIG_RHEL_09_255085: true
 DISA_STIG_RHEL_09_255130: true
@@ -44,7 +47,6 @@ DISA_STIG_RHEL_09_431010: true
 DISA_STIG_RHEL_09_431015: true
 DISA_STIG_RHEL_09_611025: true
 DISA_STIG_RHEL_09_611200: true
-DISA_STIG_RHEL_09_652035: true
 DISA_STIG_RHEL_09_652055: true
 DISA_STIG_RHEL_09_653015: true
 DISA_STIG_RHEL_09_654015: true
@@ -85,7 +87,6 @@ DISA_STIG_RHEL_09_654265: true
 DISA_STIG_RHEL_09_654275: true
 DISA_STIG_RHEL_09_671010: true
 DISA_STIG_RHEL_09_672030: true
-DISA_STIG_RHEL_09_672045: true
 DISA_STIG_needed_rules: true
 audit_rules_dac_modification_chmod: true
 audit_rules_dac_modification_chown: true
@@ -188,6 +189,7 @@ no_direct_root_logins: true
 no_empty_passwords: true
 no_reboot_needed: true
 no_rsh_trust_files: true
+package_cron_installed: true
 package_talk_removed: true
 package_talk_server_removed: true
 package_telnet_removed: true
