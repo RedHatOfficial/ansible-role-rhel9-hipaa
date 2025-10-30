@@ -999,10 +999,11 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Enable authselect - Select authselect profile
+- name: Enable authselect - Check Current authselect Profile
   ansible.builtin.command:
-    cmd: authselect select "{{ var_authselect_profile }}"
-  register: result_authselect_select
+    cmd: authselect current
+  register: result_authselect_current
+  changed_when: false
   failed_when: false
   tags:
   - CCE-89732-2
@@ -1024,10 +1025,11 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Enable authselect - Verify if PAM has been altered
+- name: Enable authselect - Try to Select an authselect Profile
   ansible.builtin.command:
-    cmd: rpm -qV pam
-  register: result_altered_authselect
+    cmd: authselect select "{{ var_authselect_profile }}"
+  register: result_authselect_select
+  changed_when: result_authselect_select.rc == 0
   failed_when: false
   when:
   - DISA_STIG_needed_rules | bool
@@ -1037,6 +1039,34 @@
   - medium_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
+  - result_authselect_current.rc != 0
+  tags:
+  - CCE-89732-2
+  - DISA-STIG-needed_rules
+  - NIST-800-53-AC-3
+  - PCI-DSSv4-8.3.4
+  - configure_strategy
+  - enable_authselect
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: Enable authselect - Verify If pam Has Been Altered
+  ansible.builtin.command:
+    cmd: rpm -qV pam
+  register: result_altered_authselect
+  changed_when: false
+  failed_when: false
+  when:
+  - DISA_STIG_needed_rules | bool
+  - configure_strategy | bool
+  - enable_authselect | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - result_authselect_select is not skipped
   - result_authselect_select.rc != 0
   tags:
   - CCE-89732-2
@@ -1050,12 +1080,13 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Enable authselect - Informative message based on the authselect integrity check
+- name: Enable authselect - Informative Message Based on authselect Integrity Check
   ansible.builtin.assert:
     that:
-    - result_altered_authselect is skipped or result_altered_authselect.rc == 0
+    - result_authselect_current.rc == 0 or result_altered_authselect is skipped or result_altered_authselect.rc == 0
     fail_msg:
-    - Files in the 'pam' package have been altered, so the authselect configuration won't be forced.
+    - authselect is not used but files from the 'pam' package have been altered, so the authselect configuration won't be
+      forced.
   tags:
   - CCE-89732-2
   - DISA-STIG-needed_rules
@@ -1076,7 +1107,7 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Enable authselect - Force authselect profile select
+- name: Enable authselect - Force authselect Profile Selection
   ansible.builtin.command:
     cmd: authselect select --force "{{ var_authselect_profile }}"
   when:
@@ -1087,8 +1118,9 @@
   - medium_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
+  - result_authselect_current.rc != 0
   - result_authselect_select.rc != 0
-  - result_altered_authselect is skipped or result_altered_authselect.rc == 0
+  - result_altered_authselect.rc == 0
   tags:
   - CCE-89732-2
   - DISA-STIG-needed_rules
@@ -1128,7 +1160,7 @@
   - no_reboot_needed
   - service_debug-shell_disabled
 
-- name: Disable debug-shell SystemD Service - Ensure "debug-shell.service" is Masked
+- name: Disable debug-shell SystemD Service - Ensure debug-shell.service is Masked
   ansible.builtin.systemd:
     name: debug-shell.service
     state: stopped
@@ -1143,7 +1175,7 @@
   - no_reboot_needed | bool
   - service_debug_shell_disabled | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - service_exists.stdout_lines is search("debug-shell.service",multiline=True)
+  - service_exists.stdout_lines is search("debug-shell.service", multiline=True)
   tags:
   - CCE-90724-6
   - DISA-STIG-RHEL-09-211055
@@ -1183,12 +1215,12 @@
   - no_reboot_needed
   - service_debug-shell_disabled
 
-- name: Disable socket debug-shell
+- name: Disable debug-shell SystemD Service - Disable Socket debug-shell
   ansible.builtin.systemd:
     name: debug-shell.socket
-    enabled: 'no'
+    enabled: false
     state: stopped
-    masked: 'yes'
+    masked: true
   when:
   - DISA_STIG_RHEL_09_211055 | bool
   - disable_strategy | bool
@@ -1198,7 +1230,7 @@
   - no_reboot_needed | bool
   - service_debug_shell_disabled | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - socket_file_exists.stdout_lines is search("debug-shell.socket",multiline=True)
+  - socket_file_exists.stdout_lines is search("debug-shell.socket", multiline=True)
   tags:
   - CCE-90724-6
   - DISA-STIG-RHEL-09-211055
@@ -1937,7 +1969,7 @@
   - no_reboot_needed
   - service_autofs_disabled
 
-- name: Disable the Automounter - Ensure "autofs.service" is Masked
+- name: Disable the Automounter - Ensure autofs.service is Masked
   ansible.builtin.systemd:
     name: autofs.service
     state: stopped
@@ -1953,7 +1985,7 @@
   - service_autofs_disabled | bool
   - ( ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"] and "autofs" in ansible_facts.packages
     )
-  - service_exists.stdout_lines is search("autofs.service",multiline=True)
+  - service_exists.stdout_lines is search("autofs.service", multiline=True)
   tags:
   - CCE-83850-8
   - DISA-STIG-RHEL-09-231040
@@ -2000,12 +2032,12 @@
   - no_reboot_needed
   - service_autofs_disabled
 
-- name: Disable socket autofs
+- name: Disable the Automounter - Disable Socket autofs
   ansible.builtin.systemd:
     name: autofs.socket
-    enabled: 'no'
+    enabled: false
     state: stopped
-    masked: 'yes'
+    masked: true
   when:
   - DISA_STIG_RHEL_09_231040 | bool
   - disable_strategy | bool
@@ -2016,7 +2048,7 @@
   - service_autofs_disabled | bool
   - ( ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"] and "autofs" in ansible_facts.packages
     )
-  - socket_file_exists.stdout_lines is search("autofs.socket",multiline=True)
+  - socket_file_exists.stdout_lines is search("autofs.socket", multiline=True)
   tags:
   - CCE-83850-8
   - DISA-STIG-RHEL-09-231040
@@ -2840,7 +2872,7 @@
   - no_reboot_needed
   - service_kdump_disabled
 
-- name: Disable KDump Kernel Crash Analyzer (kdump) - Ensure "kdump.service" is Masked
+- name: Disable KDump Kernel Crash Analyzer (kdump) - Ensure kdump.service is Masked
   ansible.builtin.systemd:
     name: kdump.service
     state: stopped
@@ -2855,7 +2887,7 @@
   - no_reboot_needed | bool
   - service_kdump_disabled | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - service_exists.stdout_lines is search("kdump.service",multiline=True)
+  - service_exists.stdout_lines is search("kdump.service", multiline=True)
   tags:
   - CCE-84232-8
   - DISA-STIG-RHEL-09-213115
@@ -2897,12 +2929,12 @@
   - no_reboot_needed
   - service_kdump_disabled
 
-- name: Disable socket kdump
+- name: Disable KDump Kernel Crash Analyzer (kdump) - Disable Socket kdump
   ansible.builtin.systemd:
     name: kdump.socket
-    enabled: 'no'
+    enabled: false
     state: stopped
-    masked: 'yes'
+    masked: true
   when:
   - DISA_STIG_RHEL_09_213115 | bool
   - disable_strategy | bool
@@ -2912,7 +2944,7 @@
   - no_reboot_needed | bool
   - service_kdump_disabled | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - socket_file_exists.stdout_lines is search("kdump.socket",multiline=True)
+  - socket_file_exists.stdout_lines is search("kdump.socket", multiline=True)
   tags:
   - CCE-84232-8
   - DISA-STIG-RHEL-09-213115
@@ -2926,17 +2958,17 @@
   - no_reboot_needed
   - service_kdump_disabled
 
-- name: Enable service crond
+- name: Enable cron Service - Enable service crond
   block:
   - name: Gather the package facts
     package_facts:
       manager: auto
-  - name: Enable service crond
-    systemd:
+  - name: Enable cron Service - Enable Service crond
+    ansible.builtin.systemd:
       name: crond
-      enabled: 'yes'
+      enabled: true
       state: started
-      masked: 'no'
+      masked: false
     when:
     - '"cronie" in ansible_facts.packages'
   when:
@@ -3262,7 +3294,7 @@
   - no_reboot_needed
   - service_telnet_disabled
 
-- name: Disable telnet Service - Ensure "telnet.service" is Masked
+- name: Disable telnet Service - Ensure telnet.service is Masked
   ansible.builtin.systemd:
     name: telnet.service
     state: stopped
@@ -3277,7 +3309,7 @@
   - service_telnet_disabled | bool
   - ( ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"] and "telnet-server" in ansible_facts.packages
     )
-  - service_exists.stdout_lines is search("telnet.service",multiline=True)
+  - service_exists.stdout_lines is search("telnet.service", multiline=True)
   tags:
   - CCE-84150-2
   - NIST-800-171-3.1.13
@@ -3323,12 +3355,12 @@
   - no_reboot_needed
   - service_telnet_disabled
 
-- name: Disable socket telnet
+- name: Disable telnet Service - Disable Socket telnet
   ansible.builtin.systemd:
     name: telnet.socket
-    enabled: 'no'
+    enabled: false
     state: stopped
-    masked: 'yes'
+    masked: true
   when:
   - disable_strategy | bool
   - high_severity | bool
@@ -3338,7 +3370,7 @@
   - service_telnet_disabled | bool
   - ( ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"] and "telnet-server" in ansible_facts.packages
     )
-  - socket_file_exists.stdout_lines is search("telnet.socket",multiline=True)
+  - socket_file_exists.stdout_lines is search("telnet.socket", multiline=True)
   tags:
   - CCE-84150-2
   - NIST-800-171-3.1.13
@@ -4000,17 +4032,17 @@
   - no_reboot_needed | bool
   - service_auditd_enabled | bool
 
-- name: Enable service auditd
+- name: Enable auditd Service - Enable service auditd
   block:
   - name: Gather the package facts
     package_facts:
       manager: auto
-  - name: Enable service auditd
-    systemd:
+  - name: Enable auditd Service - Enable Service auditd
+    ansible.builtin.systemd:
       name: auditd
-      enabled: 'yes'
+      enabled: true
       state: started
-      masked: 'no'
+      masked: false
     when:
     - '"audit" in ansible_facts.packages'
   when:
