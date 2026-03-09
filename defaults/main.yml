@@ -81,7 +81,6 @@ DISA_STIG_RHEL_09_654240: true
 DISA_STIG_RHEL_09_654245: true
 DISA_STIG_RHEL_09_654250: true
 DISA_STIG_RHEL_09_654255: true
-DISA_STIG_RHEL_09_654260: true
 DISA_STIG_RHEL_09_654265: true
 DISA_STIG_RHEL_09_654275: true
 DISA_STIG_RHEL_09_672030: true
@@ -157,7 +156,6 @@ audit_rules_usergroup_modification_shadow: true
 auditd_audispd_syslog_plugin_activated: true
 auditd_data_retention_flush: true
 configure_crypto_policy: true
-configure_ssh_crypto_policy: true
 configure_strategy: true
 dconf_db_up_to_date: true
 dconf_gnome_remote_access_credential_prompt: true
