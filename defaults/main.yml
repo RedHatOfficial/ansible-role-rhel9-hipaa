@@ -9,6 +9,7 @@ var_selinuxuser_execheap: 'false'
 var_selinuxuser_execmod: 'true'
 var_selinuxuser_execstack: 'false'
 var_sshd_disable_compression: 'no'
+var_audit_backlog_limit: '8192'
 var_audit_failure_mode: '2'
 var_accounts_passwords_pam_faillock_dir: /var/log/faillock
 var_auditd_flush: data
@@ -28,6 +29,7 @@ DISA_STIG_RHEL_09_214015: true
 DISA_STIG_RHEL_09_214020: true
 DISA_STIG_RHEL_09_214025: true
 DISA_STIG_RHEL_09_215040: true
+DISA_STIG_RHEL_09_215101: true
 DISA_STIG_RHEL_09_215105: true
 DISA_STIG_RHEL_09_231040: true
 DISA_STIG_RHEL_09_232040: true
@@ -48,6 +50,7 @@ DISA_STIG_RHEL_09_611025: true
 DISA_STIG_RHEL_09_611200: true
 DISA_STIG_RHEL_09_652055: true
 DISA_STIG_RHEL_09_653015: true
+DISA_STIG_RHEL_09_653120: true
 DISA_STIG_RHEL_09_654015: true
 DISA_STIG_RHEL_09_654020: true
 DISA_STIG_RHEL_09_654025: true
@@ -153,7 +156,6 @@ audit_rules_usergroup_modification_gshadow: true
 audit_rules_usergroup_modification_opasswd: true
 audit_rules_usergroup_modification_passwd: true
 audit_rules_usergroup_modification_shadow: true
-auditd_audispd_syslog_plugin_activated: true
 auditd_data_retention_flush: true
 configure_crypto_policy: true
 configure_strategy: true
@@ -173,6 +175,7 @@ ensure_redhat_gpgkey_installed: true
 file_groupowner_grub2_cfg: true
 file_owner_grub2_cfg: true
 grub2_audit_argument: true
+grub2_audit_backlog_limit_argument: true
 grub2_disable_interactive_boot: true
 grub2_enable_selinux: true
 high_complexity: true
@@ -188,6 +191,7 @@ no_empty_passwords: true
 no_reboot_needed: true
 no_rsh_trust_files: true
 package_cron_installed: true
+package_postfix_installed: true
 package_telnet_removed: true
 package_telnet_server_removed: true
 reboot_required: true
