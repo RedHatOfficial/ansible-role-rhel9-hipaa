@@ -8,7 +8,6 @@ var_selinux_state: enforcing
 var_selinuxuser_execheap: 'false'
 var_selinuxuser_execmod: 'true'
 var_selinuxuser_execstack: 'false'
-var_sshd_disable_compression: 'no'
 var_audit_backlog_limit: '8192'
 var_audit_failure_mode: '2'
 var_accounts_passwords_pam_faillock_dir: /var/log/faillock
@@ -32,13 +31,11 @@ DISA_STIG_RHEL_09_215040: true
 DISA_STIG_RHEL_09_215101: true
 DISA_STIG_RHEL_09_215105: true
 DISA_STIG_RHEL_09_231040: true
-DISA_STIG_RHEL_09_232040: true
 DISA_STIG_RHEL_09_255025: true
 DISA_STIG_RHEL_09_255040: true
 DISA_STIG_RHEL_09_255045: true
 DISA_STIG_RHEL_09_255080: true
 DISA_STIG_RHEL_09_255085: true
-DISA_STIG_RHEL_09_255130: true
 DISA_STIG_RHEL_09_255135: true
 DISA_STIG_RHEL_09_255140: true
 DISA_STIG_RHEL_09_255160: true
